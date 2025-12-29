@@ -18,7 +18,7 @@
 body {
 	background-color: var(--bg-color);
 	color: var(--text-color);
-	font-family: var(--font-main);
+	font-family: var(--font-main), sans-serif;
 	line-height: 1.6;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
@@ -69,6 +69,12 @@ nav {
 	backdrop-filter: blur(12px);
 	-webkit-backdrop-filter: blur(12px);
 	border-bottom: 1px solid var(--glass-border);
+}
+
+.nav-links a.active {
+	color: orange; /* e.g., orange or blue */
+	font-weight: bold;
+	border-bottom: 2px solid currentColor;
 }
 
 .logo {

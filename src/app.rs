@@ -2,8 +2,11 @@ use leptos::prelude::*;
 use leptos_meta::{provide_meta_context, MetaTags, Stylesheet, Title};
 use leptos_router::{
     components::{Route, Router, Routes},
-    StaticSegment,
+    hooks::{use_location, use_params_map},
+    path, // <--- Crucial import for path! macro
 };
+
+use crate::data::{get_project_by_id, get_projects, Project};
 
 pub fn shell(options: LeptosOptions) -> impl IntoView {
     view! {
@@ -25,32 +28,147 @@ pub fn shell(options: LeptosOptions) -> impl IntoView {
 
 #[component]
 pub fn App() -> impl IntoView {
-    // Provides context that manages stylesheets, titles, meta tags, etc.
     provide_meta_context();
 
     view! {
-        // injects a stylesheet into the document <head>
-        // id=leptos means cargo-leptos will hot-reload this stylesheet
         <Stylesheet id="leptos" href="/pkg/portfolio.css"/>
-
-        // sets the document title
         <Title text="Portfolio | Rust Developer"/>
 
-        // content for this welcome page
         <Router>
             <main>
                 <Routes fallback=|| "Page not found.".into_view()>
-                    <Route path=StaticSegment("") view=HomePage/>
-                    <Route path=StaticSegment("project/genezippers") view=GeneZippersProject/>
+                    // 1. Root Route
+                    <Route path=path!("/") view=HomePage/>
+
+                    // 2. Dynamic Route for Projects (matches /project/genezippers, etc.)
+                    <Route path=path!("/project/:id") view=ProjectLoader/>
                 </Routes>
             </main>
         </Router>
     }
 }
 
-/// Renders the home page of your application.
+#[component]
+pub fn ProjectLoader() -> impl IntoView {
+    let params = use_params_map();
+
+    // Derived signal: fetches data when ID changes
+    let project_data = move || {
+        let id = params.get().get("id").unwrap_or_default();
+        get_project_by_id(&id)
+    };
+
+    view! {
+        {move || match project_data() {
+            Some(data) => view! { <ProjectDetail project=data/> }.into_any(),
+            None => view! {
+                <div>
+                    <Navbar/>
+                    <div class="container" style="padding-top: 100px; text-align: center;">
+                        <h1>"Project Not Found"</h1>
+                        <p>"The project you are looking for does not exist."</p>
+                        <a href="/" class="btn btn-primary">"Return Home"</a>
+                    </div>
+                    <Footer/>
+                </div>
+            }.into_any(),
+        }}
+    }
+}
+
+#[component]
+fn ProjectDetail(project: Project) -> impl IntoView {
+    view! {
+        <div>
+            <Navbar/>
+            <section class="project-detail">
+                <div class="container">
+                    <a href="/#projects" class="back-link">"← Back to Portfolio"</a>
+
+                    <div class="project-header">
+                        <span class="tag">{project.tag}</span>
+                        <h1>{project.title}</h1>
+                        <p class="project-subtitle">{project.subtitle}</p>
+                    </div>
+
+                    <div class="project-content">
+                        <div class="project-section">
+                            <h2>"Overview"</h2>
+                            <p>{project.overview}</p>
+                        </div>
+
+                        <div class="project-section">
+                            <h2>"My Role"</h2>
+                            <p>{project.role}</p>
+                        </div>
+
+                        <div class="project-section">
+                            <h2>"Technologies"</h2>
+                            <div class="tech-tags">
+                                <For
+                                    each=move || project.technologies.clone()
+                                    key=|tech| tech.to_string()
+                                    children=|tech| view! { <span class="tech-tag">{tech}</span> }
+                                />
+                            </div>
+                        </div>
+
+                        {move || project.posters.clone().map(|posters| view! {
+                             <div class="project-section">
+                                <h2>"Posters"</h2>
+                                <div class="posters-grid">
+                                    <For
+                                        each=move || posters.clone()
+                                        key=|poster| poster.name
+                                        children=|poster| view! {
+                                            <a href=poster.url target="_blank" class="btn btn-secondary">{poster.name}</a>
+                                        }
+                                    />
+                                </div>
+                            </div>
+                        })}
+
+                        <div class="project-section">
+                            <h2>"Resources"</h2>
+                            <div class="project-links">
+                                {move || project.paper_link.map(|link| view! {
+                                    <a href=link target="_blank" class="btn btn-primary">"Read Paper"</a>
+                                })}
+                                {move || project.code_link.map(|link| view! {
+                                    <a href=link target="_blank" class="btn btn-secondary">"View Code"</a>
+                                })}
+                                {move || project.live_link.map(|link| view! {
+                                    <a href=link target="_blank" class="btn btn-secondary">"Live Site"</a>
+                                })}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <Footer/>
+        </div>
+    }
+}
+
 #[component]
 fn HomePage() -> impl IntoView {
+    let location = use_location();
+
+    Effect::new(move |_| {
+        let hash = location.hash.get();
+
+        if !hash.is_empty() {
+            let hash_string = hash.to_string();
+
+            request_animation_frame(move || {
+                let id = hash_string.trim_start_matches('#');
+                if let Some(el) = document().get_element_by_id(id) {
+                    el.scroll_into_view();
+                }
+            });
+        }
+    });
+
     view! {
         <Navbar/>
         <Hero/>
@@ -62,14 +180,54 @@ fn HomePage() -> impl IntoView {
 
 #[component]
 fn Navbar() -> impl IntoView {
+    let location = use_location();
+    let (current_hash, set_current_hash) = signal(String::new());
+
+    Effect::new(move |_| {
+        set_current_hash.set(location.hash.get());
+    });
+
+    let scroll_to = move |target_id: &str| {
+        if location.pathname.get() == "/" {
+            let target_id_owned = target_id.to_string();
+
+            request_animation_frame(move || {
+                if let Some(el) = document().get_element_by_id(&target_id_owned) {
+                    el.scroll_into_view();
+                }
+            });
+        }
+    };
+
+    let is_active = move |path: &str| {
+        let current_path = location.pathname.get();
+        if path == "/" { current_path == "/" } else { current_path.starts_with(path) }
+    };
+
     view! {
         <nav>
-            <div class="logo">"Portfolio"</div>
+            <div class="logo">
+                <a href="/">"Portfolio"</a>
+            </div>
             <ul class="nav-links">
-                <li><a href="#home">"Home"</a></li>
-                <li><a href="#projects">"Projects"</a></li>
-                <li><a href="#photos">"Photos"</a></li>
-                <li><a href="#contact">"Contact"</a></li>
+                <li>
+                    <a href="/#home"
+                       class:active=move || is_active("/")
+                       on:click=move |_| scroll_to("home")>"Home"</a>
+                </li>
+                <li>
+                    <a href="/#projects"
+                       class:active=move || is_active("/project") || current_hash.get() == "#projects"
+                       on:click=move |_| scroll_to("projects")>"Projects"</a>
+                </li>
+                <li>
+                    <a href="/#photos"
+                       on:click=move |_| scroll_to("photos")>"Photos"</a>
+                </li>
+                <li>
+                    <a href="/#contact"
+                       on:click=move |_| scroll_to("contact")>"Contact"</a>
+                </li>
             </ul>
         </nav>
     }
@@ -83,7 +241,7 @@ fn Hero() -> impl IntoView {
                 <img src="/images/headshot.jpg" alt="Profile" class="hero-image"/>
                 <h1>"Building the Future"</h1>
                 <p>"Full-stack developer crafting high-performance web applications with Rust, modern frameworks, and cutting-edge technologies."</p>
-                <a href="#projects" class="btn btn-primary">"View My Work"</a>
+                <a href="/#projects" class="btn btn-primary">"View My Work"</a>
             </div>
         </section>
     }
@@ -91,26 +249,7 @@ fn Hero() -> impl IntoView {
 
 #[component]
 fn Projects() -> impl IntoView {
-    let projects = vec![
-        ProjectData {
-            tag: "Research",
-            title: "GeneZippers: DNA Compression",
-            description: "Analysis of early DNA compression algorithms comparing Huffman Coding, DNAzip, and Biocompress 1 for genomic data.",
-            link: Some("https://www.cs.carleton.edu/cs_comps/2526/genezippers_web/website/"),
-        },
-        ProjectData {
-            tag: "Web App",
-            title: "Portfolio Website",
-            description: "A high-performance portfolio website built with Rust and Leptos, featuring modern design and seamless navigation.",
-            link: None,
-        },
-        ProjectData {
-            tag: "Tool",
-            title: "CLI Development Tool",
-            description: "Developer productivity tool that automates common workflows and integrates with popular CI/CD platforms.",
-            link: None,
-        },
-    ];
+    let projects = get_projects();
 
     view! {
         <section class="projects container" id="projects">
@@ -125,49 +264,15 @@ fn Projects() -> impl IntoView {
 }
 
 #[component]
-fn ProjectCard(project: ProjectData) -> impl IntoView {
-    let card_content = view! {
-        <span class="tag">{project.tag}</span>
-        <h3>{project.title}</h3>
-        <p>{project.description}</p>
-    };
+fn ProjectCard(project: Project) -> impl IntoView {
+    let link = format!("/project/{}", project.id);
 
-    if let Some(link) = project.link {
-        view! {
-            <a href={link} class="project-card">
-                {card_content}
-            </a>
-        }.into_any()
-    } else {
-        view! {
-            <div class="project-card">
-                {card_content}
-            </div>
-        }.into_any()
-    }
-}
-
-#[derive(Clone)]
-struct ProjectData {
-    tag: &'static str,
-    title: &'static str,
-    description: &'static str,
-    link: Option<&'static str>,
-}
-
-#[component]
-fn Footer() -> impl IntoView {
     view! {
-        <footer>
-            <div class="container">
-                <p>"© 2025 Portfolio. Built with Rust & Leptos."</p>
-                <div class="footer-links">
-                    <a href="https://github.com" target="_blank">"GitHub"</a>
-                    <a href="https://linkedin.com" target="_blank">"LinkedIn"</a>
-                    <a href="mailto:hello@example.com">"Email"</a>
-                </div>
-            </div>
-        </footer>
+        <a href=link class="project-card">
+            <span class="tag">{project.tag}</span>
+            <h3>{project.title}</h3>
+            <p>{project.description}</p>
+        </a>
     }
 }
 
@@ -187,78 +292,17 @@ fn Photos() -> impl IntoView {
 }
 
 #[component]
-fn GeneZippersProject() -> impl IntoView {
+fn Footer() -> impl IntoView {
     view! {
-        <div>
-            <Navbar/>
-            <section class="project-detail">
-                <div class="container">
-                    <a href="/" class="back-link">"← Back to Portfolio"</a>
-                    
-                    <div class="project-header">
-                        <span class="tag">"Research"</span>
-                        <h1>"GeneZippers: DNA Compression Analysis"</h1>
-                        <p class="project-subtitle">"From Bases to Bits: An Analysis of Early DNA Compression Algorithms"</p>
-                    </div>
-
-                    <div class="project-content">
-                        <div class="project-section">
-                            <h2>"Overview"</h2>
-                            <p>"This project evaluates three distinct data compression strategies to assess their efficacy in handling massive genomic datasets by comparing a general text-based approach (Huffman Coding) against two specialized DNA compressors: DNAzip (reference-based) and Biocompress 1 (non-reference-based)."</p>
-                        </div>
-
-                        <div class="project-section">
-                            <h2>"My Role"</h2>
-                            <p>"I focused on implementing and analyzing DNAzip, a reference-based DNA compression algorithm. This involved understanding the algorithm's approach to leveraging sequence similarity and evaluating its performance across different genomic datasets."</p>
-                        </div>
-
-                        <div class="project-section">
-                            <h2>"Technologies"</h2>
-                            <div class="tech-tags">
-                                <span class="tech-tag">"Python"</span>
-                                <span class="tech-tag">"Bioinformatics"</span>
-                                <span class="tech-tag">"Data Compression"</span>
-                                <span class="tech-tag">"Algorithm Analysis"</span>
-                            </div>
-                        </div>
-
-                        <div class="project-section">
-                            <h2>"Paper"</h2>
-                            <div class="project-links">
-                                <a href="https://www.cs.carleton.edu/cs_comps/2526/genezippers_web/website/paper.html" target="_blank" class="btn btn-primary">"Read the Paper"</a>
-                            </div>
-                        </div>
-
-                        <div class="project-section">
-                            <h2>"Repositories"</h2>
-                            <div class="project-links">
-                                <a href="https://github.com/Rawleo/genezippers_comps" target="_blank" class="btn btn-primary">"GeneZippers Codebase"</a>
-                                <a href="https://github.com/Rawleo/genezippers_web" target="_blank" class="btn btn-secondary">"GeneZippers Web"</a>
-                            </div>
-                        </div>
-
-                        <div class="project-section">
-                            <h2>"Posters"</h2>
-                            <div class="posters-grid">
-                                <a href="https://www.cs.carleton.edu/cs_comps/2526/genezippers_web/website/img/posters/Saxer_Poster.pdf" target="_blank" class="btn btn-secondary">"Gavin: Biocompress 1"</a>
-                                <a href="https://www.cs.carleton.edu/cs_comps/2526/genezippers_web/website/img/posters/ArroyoRuiz_Poster.pdf" target="_blank" class="btn btn-secondary">"Jared: DNAzip"</a>
-                                <a href="https://www.cs.carleton.edu/cs_comps/2526/genezippers_web/website/img/posters/Son_Poster.pdf" target="_blank" class="btn btn-secondary">"Ryan: DNAzip"</a>
-                            </div>
-                        </div>
-
-                        <div class="project-section">
-                            <h2>"Links"</h2>
-                            <div class="project-links">
-                                <a href="https://www.cs.carleton.edu/cs_comps/2526/genezippers_web/website/" target="_blank" class="btn btn-primary">"View Project Website"</a>
-                                <a href="https://github.com/Rawleo/genezippers_comps" target="_blank" class="btn btn-secondary">"View Code"</a>
-                            </div>
-                        </div>
-                        <p class="original-link">"Original site: "<a href="https://www.cs.carleton.edu/cs_comps/2526/genezippers_web/website/" target="_blank">"https://www.cs.carleton.edu/cs_comps/2526/genezippers_web/website/"</a></p>
-                    </div>
+        <footer>
+            <div class="container">
+                <p>"© 2025 Portfolio. Built with Rust & Leptos."</p>
+                <div class="footer-links">
+                    <a href="https://github.com" target="_blank">"GitHub"</a>
+                    <a href="https://linkedin.com" target="_blank">"LinkedIn"</a>
+                    <a href="mailto:hello@example.com">"Email"</a>
                 </div>
-            </section>
-            <Footer/>
-        </div>
+            </div>
+        </footer>
     }
 }
-
