@@ -140,6 +140,9 @@ fn ProjectDetail(project: Project) -> impl IntoView {
                                 {move || project.live_link.map(|link| view! {
                                     <a href=link target="_blank" class="btn btn-secondary">"Live Site"</a>
                                 })}
+                                {move || project.live_link.map(|link| view! {
+                                    <a href=link target="_blank" class="btn btn-secondary">"Live Site"</a>
+                                })}
                             </div>
                         </div>
                     </div>
@@ -172,6 +175,7 @@ fn HomePage() -> impl IntoView {
     view! {
         <Navbar/>
         <Hero/>
+        // <Contact/>
         <Projects/>
         <Photos/>
         <Footer/>
@@ -238,9 +242,14 @@ fn Hero() -> impl IntoView {
     view! {
         <section class="hero" id="home">
             <div class="container hero-content">
-                <img src="/images/headshot.jpg" alt="Profile" class="hero-image"/>
-                <h1>"Building the Future"</h1>
+                // <img src="/images/headshot.jpg" alt="Profile" class="hero-image"/>
+                <h1>"*Tagline*"</h1>
                 <p>"Full-stack developer crafting high-performance web applications with Rust, modern frameworks, and cutting-edge technologies."</p>
+                <div class="hero-links">
+                    <a href="https://github.com/rawleo" target="_blank">"GitHub"</a>
+                    <a href="https://www.linkedin.com/in/ryanson50" target="_blank">"LinkedIn"</a>
+                    <a href="mailto:sonryan50@gmail.com">"Email"</a>
+                </div>
                 <a href="/#projects" class="btn btn-primary">"View My Work"</a>
             </div>
         </section>
@@ -290,6 +299,16 @@ fn Photos() -> impl IntoView {
         </section>
     }
 }
+
+// #[component]
+// fn Contact() -> impl IntoView {
+//     view! {
+//         <section class="contact-container" id="social-links">
+//             // <h2 class="section-title">"Contact Links"</h2>
+//
+//         </section>
+//     }
+// }
 
 #[component]
 fn Footer() -> impl IntoView {

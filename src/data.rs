@@ -68,6 +68,20 @@ pub fn get_projects() -> Vec<Project> {
             paper_link: None,
             posters: None,
         },
+        Project {
+            id: "test",
+            title: "test-title",
+            subtitle: "",
+            tag: "",
+            description: "",
+            overview: "",
+            role: "",
+            technologies: vec![],
+            live_link: None,
+            code_link: None,
+            paper_link: None,
+            posters: None,
+        },
     ]
 }
 
