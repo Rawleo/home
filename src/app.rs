@@ -182,12 +182,14 @@ fn HomePage() -> impl IntoView {
 fn Navbar() -> impl IntoView {
     let location = use_location();
     let (current_hash, set_current_hash) = signal(String::new());
+    let (is_open, set_is_open) = signal(false);
 
     Effect::new(move |_| {
         set_current_hash.set(location.hash.get());
     });
 
     let scroll_to = move |target_id: &str| {
+        set_is_open.set(false);
         if location.pathname.get() == "/" {
             let target_id_owned = target_id.to_string();
 
@@ -207,9 +209,21 @@ fn Navbar() -> impl IntoView {
     view! {
         <nav>
             <div class="logo">
-                <a href="./">"Ryan Son"</a>
+                <a href="./" on:click=move |_| set_is_open.set(false)>"Ryan Son"</a>
             </div>
-            <ul class="nav-links">
+
+            <button
+                class="menu-toggle"
+                class:open=move || is_open.get()
+                on:click=move |_| set_is_open.update(|n| *n = !*n)
+                aria-label="Toggle menu"
+            >
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+
+            <ul class="nav-links" class:open=move || is_open.get()>
                 <li>
                     <a href="./#home"
                        class:active=move || is_active("/")
@@ -225,13 +239,10 @@ fn Navbar() -> impl IntoView {
                        class:active=move || is_active("/photos") || current_hash.get() == "#photos"
                        on:click=move |_| scroll_to("photos")>"Photos"</a>
                 </li>
-                // <li>
-                //     <a href="./#contact"
-                //        class:active=move || is_active("/contact") || current_hash.get() == "#contact"
-                //        on:click=move |_| scroll_to("contact")>"Contact"</a>
-                // </li>
                 <li>
-                    <a href="about" class:active=move || is_active("/about")>"About"</a>
+                    <a href="about"
+                       class:active=move || is_active("/about")
+                       on:click=move |_| set_is_open.set(false)>"About"</a>
                 </li>
             </ul>
         </nav>
