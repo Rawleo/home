@@ -37,10 +37,8 @@ pub fn App() -> impl IntoView {
         <Router>
             <main>
                 <Routes fallback=|| "Page not found.".into_view()>
-                    // 1. Root Route
                     <Route path=path!("/") view=HomePage/>
 
-                    // 2. Dynamic Route for Projects (matches /project/genezippers, etc.)
                     <Route path=path!("/project/:id") view=ProjectLoader/>
                 </Routes>
             </main>
@@ -52,7 +50,6 @@ pub fn App() -> impl IntoView {
 pub fn ProjectLoader() -> impl IntoView {
     let params = use_params_map();
 
-    // Derived signal: fetches data when ID changes
     let project_data = move || {
         let id = params.get().get("id").unwrap_or_default();
         get_project_by_id(&id)
@@ -175,7 +172,6 @@ fn HomePage() -> impl IntoView {
     view! {
         <Navbar/>
         <Hero/>
-        // <Contact/>
         <Projects/>
         <Photos/>
         <Footer/>
@@ -226,12 +222,14 @@ fn Navbar() -> impl IntoView {
                 </li>
                 <li>
                     <a href="/#photos"
+                       class:active=move || is_active("/photos") || current_hash.get() == "#photos"
                        on:click=move |_| scroll_to("photos")>"Photos"</a>
                 </li>
-                <li>
-                    <a href="/#contact"
-                       on:click=move |_| scroll_to("contact")>"Contact"</a>
-                </li>
+                // <li>
+                //     <a href="/#contact"
+                //        class:active=move || is_active("/contact") || current_hash.get() == "#contact"
+                //        on:click=move |_| scroll_to("contact")>"Contact"</a>
+                // </li>
             </ul>
         </nav>
     }
@@ -243,8 +241,8 @@ fn Hero() -> impl IntoView {
         <section class="hero" id="home">
             <div class="container hero-content">
                 <img src="/images/headshot.jpg" alt="Profile" class="hero-image"/>
-                <h1>"Scalable Rust Apps"</h1>
-                <p>"Full-stack developer crafting high-performance web applications with Rust and modern frameworks."</p>
+                <h1>"Scalable Web Apps"</h1>
+                <p>"Full-stack developer crafting high-performance web applications with Rust and other modern frameworks."</p>
                 <div class="hero-links">
                     <a href="/#projects" class="btn btn-primary hero-project-btn">"View My Work"</a>
                     <a href="https://github.com/rawleo" class="btn btn-secondary" target="_blank">"GitHub"</a>
@@ -262,7 +260,7 @@ fn Projects() -> impl IntoView {
 
     view! {
         <section class="projects container" id="projects">
-            <h2 class="section-title">"Featured Projects"</h2>
+            <h2 class="section-title">"Projects"</h2>
             <div class="projects-grid">
                 {projects.into_iter().map(|project| {
                     view! { <ProjectCard project=project/> }
