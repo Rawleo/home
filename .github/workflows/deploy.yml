@@ -36,6 +36,7 @@ jobs:
         run: |
           sed -i 's|base href="/"|base href="/home/"|' index.html
           LEPTOS_ROUTER_BASE=/home trunk build --features csr --release --public-url /home/
+          cp dist/index.html dist/404.html
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
