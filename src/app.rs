@@ -242,15 +242,15 @@ fn Hero() -> impl IntoView {
     view! {
         <section class="hero" id="home">
             <div class="container hero-content">
-                // <img src="/images/headshot.jpg" alt="Profile" class="hero-image"/>
-                <h1>"*Tagline*"</h1>
-                <p>"Full-stack developer crafting high-performance web applications with Rust, modern frameworks, and cutting-edge technologies."</p>
+                <img src="/images/headshot.jpg" alt="Profile" class="hero-image"/>
+                <h1>"Scalable Rust Apps"</h1>
+                <p>"Full-stack developer crafting high-performance web applications with Rust and modern frameworks."</p>
                 <div class="hero-links">
-                    <a href="https://github.com/rawleo" target="_blank">"GitHub"</a>
-                    <a href="https://www.linkedin.com/in/ryanson50" target="_blank">"LinkedIn"</a>
-                    <a href="mailto:sonryan50@gmail.com">"Email"</a>
+                    <a href="/#projects" class="btn btn-primary hero-project-btn">"View My Work"</a>
+                    <a href="https://github.com/rawleo" class="btn btn-secondary" target="_blank">"GitHub"</a>
+                    <a href="https://www.linkedin.com/in/ryanson50" class="btn btn-secondary" target="_blank">"LinkedIn"</a>
+                    <a href="mailto:sonryan50@gmail.com" class="btn btn-secondary">"Email"</a>
                 </div>
-                <a href="/#projects" class="btn btn-primary">"View My Work"</a>
             </div>
         </section>
     }
