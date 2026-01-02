@@ -34,8 +34,8 @@ jobs:
 
       - name: Build
         run: |
-          sed -i 's|base href="/"|base href="/rusthome/"|' index.html
-          LEPTOS_ROUTER_BASE=/rusthome trunk build --features csr --release --public-url /rusthome/
+          sed -i 's|base href="/"|base href="/home/"|' index.html
+          LEPTOS_ROUTER_BASE=/home trunk build --features csr --release --public-url /home/
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
