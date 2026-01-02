@@ -31,10 +31,10 @@ pub fn App() -> impl IntoView {
     provide_meta_context();
 
     view! {
-        <Stylesheet id="leptos" href="/pkg/portfolio.css"/>
+        <Stylesheet id="leptos" href="pkg/portfolio.css"/>
         <Title text="Ryan Son | Rust Developer"/>
 
-        <Router>
+        <Router base=option_env!("LEPTOS_ROUTER_BASE").unwrap_or_default()>
             <main>
                 <Routes fallback=|| "Page not found.".into_view()>
                     <Route path=path!("/") view=HomePage/>
@@ -80,7 +80,7 @@ fn ProjectDetail(project: Project) -> impl IntoView {
             <Navbar/>
             <section class="project-detail">
                 <div class="container">
-                    <a href="/#projects" class="back-link">"← Back to Portfolio"</a>
+                    <a href="./#projects" class="back-link">"← Back to Portfolio"</a>
 
                     <div class="project-header">
                         <span class="tag">{project.tag}</span>
@@ -207,31 +207,31 @@ fn Navbar() -> impl IntoView {
     view! {
         <nav>
             <div class="logo">
-                <a href="/">"Ryan Son"</a>
+                <a href="./">"Ryan Son"</a>
             </div>
             <ul class="nav-links">
                 <li>
-                    <a href="/#home"
+                    <a href="./#home"
                        class:active=move || is_active("/")
                        on:click=move |_| scroll_to("home")>"Home"</a>
                 </li>
                 <li>
-                    <a href="/#projects"
+                    <a href="./#projects"
                        class:active=move || is_active("/project") || current_hash.get() == "#projects"
                        on:click=move |_| scroll_to("projects")>"Projects"</a>
                 </li>
                 <li>
-                    <a href="/#photos"
+                    <a href="./#photos"
                        class:active=move || is_active("/photos") || current_hash.get() == "#photos"
                        on:click=move |_| scroll_to("photos")>"Photos"</a>
                 </li>
                 // <li>
-                //     <a href="/#contact"
+                //     <a href="./#contact"
                 //        class:active=move || is_active("/contact") || current_hash.get() == "#contact"
                 //        on:click=move |_| scroll_to("contact")>"Contact"</a>
                 // </li>
                 <li>
-                    <a href="/about" class:active=move || is_active("/about")>"About"</a>
+                    <a href="about" class:active=move || is_active("/about")>"About"</a>
                 </li>
             </ul>
         </nav>
@@ -243,11 +243,11 @@ fn Hero() -> impl IntoView {
     view! {
         <section class="hero" id="home">
             <div class="container hero-content">
-                <img src="/images/headshot.jpg" alt="Profile" class="hero-image"/>
+                <img src="images/headshot.jpg" alt="Profile" class="hero-image"/>
                 <h1>"Scalable Web Apps"</h1>
                 <p>"Full-stack developer crafting high-performance web applications with Rust and other modern frameworks."</p>
                 <div class="hero-links">
-                    <a href="/#projects" class="btn btn-primary hero-project-btn">"View My Work"</a>
+                    <a href="./#projects" class="btn btn-primary hero-project-btn">"View My Work"</a>
                     <a href="https://github.com/rawleo" class="btn btn-secondary" target="_blank">"GitHub"</a>
                     <a href="https://www.linkedin.com/in/ryanson50" class="btn btn-secondary" target="_blank">"LinkedIn"</a>
                     <a href="mailto:sonryan50@gmail.com" class="btn btn-secondary">"Email"</a>
@@ -275,7 +275,7 @@ fn Projects() -> impl IntoView {
 
 #[component]
 fn ProjectCard(project: Project) -> impl IntoView {
-    let link = format!("/project/{}", project.id);
+    let link = format!("project/{}", project.id);
 
     view! {
         <a href=link class="project-card">
@@ -304,7 +304,7 @@ fn Photos() -> impl IntoView {
             <h2 class="section-title">"Photos"</h2>
             <div class="photos-grid">
                 <div class="photo-card">
-                    <img src="/images/temple-photo.jpg" alt="Temple at sunrise"/>
+                    <img src="images/temple-photo.jpg" alt="Temple at sunrise"/>
                     <div class="photo-caption">"Angkor Wat, Cambodia"</div>
                 </div>
             </div>
@@ -320,7 +320,7 @@ fn About() -> impl IntoView {
                 <h2 class="section-title">"About Me"</h2>
                 <div class="about-grid">
                     <div class="about-image-wrapper">
-                        <img src="/images/headshot.jpg" alt="Ryan Son" class="about-image"/>
+                        <img src="images/headshot.jpg" alt="Ryan Son" class="about-image"/>
                     </div>
                     <div class="about-text">
                         <p>"Hello! I'm Ryan Son, a junior full-stack developer and soon to be graduate of Carleton College. I'm passionate about crafting scalable web applications with Rust and other modern frameworks."</p>
