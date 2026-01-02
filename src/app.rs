@@ -32,14 +32,14 @@ pub fn App() -> impl IntoView {
 
     view! {
         <Stylesheet id="leptos" href="/pkg/portfolio.css"/>
-        <Title text="Portfolio | Rust Developer"/>
+        <Title text="Ryan Son | Rust Developer"/>
 
         <Router>
             <main>
                 <Routes fallback=|| "Page not found.".into_view()>
                     <Route path=path!("/") view=HomePage/>
-
                     <Route path=path!("/project/:id") view=ProjectLoader/>
+                    <Route path=path!("/about") view=AboutPage/>
                 </Routes>
             </main>
         </Router>
@@ -207,7 +207,7 @@ fn Navbar() -> impl IntoView {
     view! {
         <nav>
             <div class="logo">
-                <a href="/">"Portfolio"</a>
+                <a href="/">"Ryan Son"</a>
             </div>
             <ul class="nav-links">
                 <li>
@@ -230,6 +230,9 @@ fn Navbar() -> impl IntoView {
                 //        class:active=move || is_active("/contact") || current_hash.get() == "#contact"
                 //        on:click=move |_| scroll_to("contact")>"Contact"</a>
                 // </li>
+                <li>
+                    <a href="/about" class:active=move || is_active("/about")>"About"</a>
+                </li>
             </ul>
         </nav>
     }
@@ -284,6 +287,17 @@ fn ProjectCard(project: Project) -> impl IntoView {
 }
 
 #[component]
+fn AboutPage() -> impl IntoView {
+    view! {
+        <div>
+            <Navbar/>
+            <About/>
+            <Footer/>
+        </div>
+    }
+}
+
+#[component]
 fn Photos() -> impl IntoView {
     view! {
         <section class="photos container" id="photos">
@@ -292,6 +306,28 @@ fn Photos() -> impl IntoView {
                 <div class="photo-card">
                     <img src="/images/temple-photo.jpg" alt="Temple at sunrise"/>
                     <div class="photo-caption">"Angkor Wat, Cambodia"</div>
+                </div>
+            </div>
+        </section>
+    }
+}
+
+#[component]
+fn About() -> impl IntoView {
+    view! {
+        <section class="about section-container" id="about">
+            <div class="container">
+                <h2 class="section-title">"About Me"</h2>
+                <div class="about-grid">
+                    <div class="about-image-wrapper">
+                        <img src="/images/headshot.jpg" alt="Ryan Son" class="about-image"/>
+                    </div>
+                    <div class="about-text">
+                        <p>"Hello! I'm Ryan Son, a junior full-stack developer and soon to be graduate of Carleton College. I'm passionate about crafting scalable web applications with Rust and other modern frameworks."</p>
+                        <p>"My journey in software development is driven by a curiosity for how complex systems work and a desire to build tools that make a real impact. With a background in research and a keen interest in high-performance computing, I find Rust to be the perfect tool for building robust, efficient software."</p>
+                        <p>"When I'm not coding, you can find me exploring new technologies, home-labbing, or capturing the world through my lens (as seen in my Photos section!)."</p>
+                        <p>"I'm currently looking for full-time opportunities, so feel free to reach out!"</p>
+                    </div>
                 </div>
             </div>
         </section>
