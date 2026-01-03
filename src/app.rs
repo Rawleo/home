@@ -32,7 +32,7 @@ pub fn App() -> impl IntoView {
 
     view! {
         <Stylesheet id="leptos" href="pkg/portfolio.css"/>
-        <Title text="Ryan Son | Rust Developer"/>
+        <Title text="Ryan Son | Full-Stack Developer"/>
 
         <Router base=option_env!("LEPTOS_ROUTER_BASE").unwrap_or_default()>
             <main>
