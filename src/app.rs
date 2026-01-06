@@ -103,7 +103,7 @@ fn ProjectDetail(project: Project) -> impl IntoView {
                             <h2>"Technologies"</h2>
                             <div class="tech-tags">
                                 <For
-                                    each=move || project.technologies.clone()
+                                    each=move || project.technologies.clone().unwrap_or_else(Vec::new)
                                     key=|tech| tech.to_string()
                                     children=|tech| view! { <span class="tech-tag">{tech}</span> }
                                 />
@@ -127,6 +127,20 @@ fn ProjectDetail(project: Project) -> impl IntoView {
 
                         <div class="project-section">
                             <h2>"Resources"</h2>
+                            {move || project.photos.clone().map(|photos| view! {
+                                <div class="project-section">
+                                    <h3>"Photos"</h3>
+                                    <div class="posters-grid">
+                                        <For
+                                            each=move || photos.clone()
+                                            key=|photo| photo.url
+                                            children=|photo| view! {
+                                                <img src=photo.url class="hero-image"/>
+                                            }
+                                        />
+                                    </div>
+                                </div>
+                            })}
                             <div class="project-links">
                                 {move || project.paper_link.map(|link| view! {
                                     <a href=link target="_blank" class="btn btn-primary">"Read Paper"</a>
