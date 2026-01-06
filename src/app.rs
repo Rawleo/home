@@ -127,20 +127,27 @@ fn ProjectDetail(project: Project) -> impl IntoView {
 
                         <div class="project-section">
                             <h2>"Resources"</h2>
-                            {move || project.photos.clone().map(|photos| view! {
-                                <div class="project-section">
-                                    <h3>"Photos"</h3>
-                                    <div class="posters-grid">
-                                        <For
-                                            each=move || photos.clone()
-                                            key=|photo| photo.url
-                                            children=|photo| view! {
-                                                <img src=photo.url class="hero-image"/>
-                                            }
-                                        />
+                            {
+                                let photo_urls = project.photos.clone().map(|photos| {
+                                    photos
+                                        .iter()
+                                        .map(|p| p.url.to_string())
+                                        .collect::<Vec<String>>()
+                                });
+
+                                view! {
+                                    <div class="project-section">
+                                        {if let Some(urls) = photo_urls {
+                                            view! { <Slideshow images=urls/> }
+                                                .into_any()
+                                        } else {
+                                            view! {}
+                                                .into_any()
+                                        }}
                                     </div>
-                                </div>
-                            })}
+                                }
+                            }
+
                             <div class="project-links">
                                 {move || project.paper_link.map(|link| view! {
                                     <a href=link target="_blank" class="btn btn-primary">"Read Paper"</a>
@@ -371,4 +378,25 @@ fn Footer() -> impl IntoView {
             </div>
         </footer>
     }
+}
+
+#[component]
+pub fn Slideshow(images: Vec<String>) -> impl IntoView {
+    if images.is_empty() {
+        return view! {}.into_any();
+    }
+
+    let len = images.len();
+    let (index, set_index) = signal(0);
+    let prev = move |_| set_index.update(|i| *i = if *i == 0 { len - 1 } else { *i - 1 });
+    let next = move |_| set_index.update(|i| *i = (*i + 1) % len);
+    let src = move || images.get(index.get()).cloned().unwrap_or_default();
+
+    view! {
+        <div class="slideshow">
+            <button class="slide-btn slide-btn.prev" on:click=prev>"‹"</button>
+            <img class="project-image" src=src />
+            <button class="slide-btn slide-btn.next" on:click=next>"›"</button>
+        </div>
+    }.into_any()
 }
