@@ -6,7 +6,7 @@ use leptos_router::{
     path,
 };
 
-use crate::data::{get_project_by_id, get_projects, Project};
+use crate::data::{get_project_by_id, get_projects, Project, get_blog_by_id, get_blogs, Blog};
 
 pub fn shell(options: LeptosOptions) -> impl IntoView {
     view! {
@@ -39,6 +39,8 @@ pub fn App() -> impl IntoView {
                 <Routes fallback=|| "Page not found.".into_view()>
                     <Route path=path!("/") view=HomePage/>
                     <Route path=path!("/project/:id") view=ProjectLoader/>
+                    <Route path=path!("/blog/:id") view=BlogLoader/>
+                    // <Route path=path!("/blog") view=Blog/>
                     <Route path=path!("/about") view=AboutPage/>
                 </Routes>
             </main>
@@ -61,10 +63,10 @@ pub fn ProjectLoader() -> impl IntoView {
             None => view! {
                 <div>
                     <Navbar/>
-                    <div class="container" style="padding-top: 100px; text-align: center;">
+                    <div class="container" style="padding-top: 100px; margin-bottom: 30px; text-align: center;">
                         <h1>"Project Not Found"</h1>
                         <p>"The project you are looking for does not exist."</p>
-                        <a href="/" class="btn btn-primary">"Return Home"</a>
+                        <a href="/" style="margin-top: 20px" class="btn btn-primary">"Return Home"</a>
                     </div>
                     <Footer/>
                 </div>
@@ -191,6 +193,7 @@ fn HomePage() -> impl IntoView {
         <Navbar/>
         <Hero/>
         <Projects/>
+        <Blogs/>
         <Photos/>
         <Footer/>
     }
@@ -253,6 +256,11 @@ fn Navbar() -> impl IntoView {
                        on:click=move |_| scroll_to("projects")>"Projects"</a>
                 </li>
                 <li>
+                    <a href="./#blogs"
+                       class:active=move || is_active("/blog") || current_hash.get() == "#blogs"
+                       on:click=move |_| scroll_to("blogs")>"Blogs"</a>
+                </li>
+                <li>
                     <a href="./#photos"
                        class:active=move || is_active("/photos") || current_hash.get() == "#photos"
                        on:click=move |_| scroll_to("photos")>"Photos"</a>
@@ -292,7 +300,7 @@ fn Projects() -> impl IntoView {
 
     view! {
         <section class="projects container" id="projects">
-            <h2 class="section-title">"Projects"</h2>
+            <h2 class="section-title">"Featured Projects"</h2>
             <div class="projects-grid">
                 {projects.into_iter().map(|project| {
                     view! { <ProjectCard project=project/> }
@@ -312,6 +320,90 @@ fn ProjectCard(project: Project) -> impl IntoView {
             <h3>{project.title}</h3>
             <p>{project.description}</p>
         </a>
+    }
+}
+
+#[component]
+fn Blogs() -> impl IntoView {
+    let blogs = get_blogs();
+
+    view! {
+        <section class="projects container" id="blogs">
+            <h2 class="section-title">"Featured Blogs"</h2>
+            <div class="projects-grid">
+                {blogs.into_iter().map(|blog| {
+                    view! { <BlogCard blog=blog/> }
+                }).collect::<Vec<_>>()}
+            </div>
+        </section>
+    }
+}
+
+#[component]
+fn BlogCard(blog: Blog) -> impl IntoView {
+    let link = format!("blog/{}", blog.id);
+
+    view! {
+        <a href=link class="project-card">
+            <span class="tag">{blog.tag}</span>
+            <h3>{blog.title}</h3>
+            <p>{blog.description}</p>
+        </a>
+    }
+}
+
+#[component]
+pub fn BlogLoader() -> impl IntoView {
+    let params = use_params_map();
+
+    let blog_data = move || {
+        let id = params.get().get("id").unwrap_or_default();
+        get_blog_by_id(&id)
+    };
+
+    view! {
+        {move || match blog_data() {
+            Some(data) => view! { <BlogDetail blog=data/> }.into_any(),
+            None => view! {
+                <div>
+                    <Navbar/>
+                    <div class="container" style="padding-top: 100px; margin-bottom: 30px; text-align: center;">
+                        <h1>"Project Not Found"</h1>
+                        <p>"The project you are looking for does not exist."</p>
+                        <a href="/" style="margin-top: 20px" class="btn btn-primary">"Return Home"</a>
+                    </div>
+                    <Footer/>
+                </div>
+            }.into_any(),
+        }}
+    }
+}
+
+#[component]
+fn BlogDetail(blog: Blog) -> impl IntoView {
+    view! {
+        <div>
+            <Navbar/>
+            <section class="project-detail">
+                <div class="container">
+                    <a href="./#projects" class="back-link">"← Back to Portfolio"</a>
+
+                    <div class="project-header">
+                        <span class="tag">{blog.tag}</span>
+                        <h1>{blog.title}</h1>
+                        <p class="project-subtitle">{blog.subtitle}</p>
+                    </div>
+
+                    <div class="project-content">
+                        <div class="project-section">
+                            <h2>"Overview"</h2>
+                            <p>{blog.overview}</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <Footer/>
+        </div>
     }
 }
 

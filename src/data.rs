@@ -15,6 +15,16 @@ pub struct Project {
     pub photos: Option<Vec<Photo>>,
 }
 
+pub struct Blog {
+    pub id: &'static str,
+    pub title: &'static str,
+    pub subtitle: &'static str,
+    pub tag: &'static str,
+    pub description: &'static str,
+    pub overview: &'static str,
+    pub live_link: Option<&'static str>,
+}
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct Poster {
     pub name: &'static str,
@@ -70,7 +80,7 @@ pub fn get_projects() -> Vec<Project> {
             description: "Revitalizing a microwave transformer into a battery making powerhouse.",
             overview: "Built to construct custom designed battery packs for my electrical vehicles.",
             role: "Builder",
-            technologies: Some(vec!["Electricity", "Magnetism"]),
+            technologies: Some(vec!["E & M"]),
             live_link: None,
             code_link: None,
             paper_link: None,
@@ -99,6 +109,24 @@ pub fn get_projects() -> Vec<Project> {
     ]
 }
 
+pub fn get_blogs() -> Vec<Blog> {
+    vec![
+        Blog {
+            id: "010526",
+            title: "Sample",
+            subtitle: "Sample Blog",
+            tag: "Blog Sample",
+            description: "Blog Description",
+            overview: "Blog Overview",
+            live_link: None
+        }
+    ]
+}
+
 pub fn get_project_by_id(id: &str) -> Option<Project> {
     get_projects().into_iter().find(|p| p.id == id)
+}
+
+pub fn get_blog_by_id(id: &str) -> Option<Blog> {
+    get_blogs().into_iter().find(|b| b.id == id)
 }
