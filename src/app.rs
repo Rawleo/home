@@ -78,7 +78,7 @@ pub fn App() -> impl IntoView {
 
         <Router base=router_base>
             <main>
-                <Routes fallback=|| "Page not found.".into_view()>
+                <Routes fallback=NotFoundPage>
                     <Route path=path!("/") view=HomePage/>
                     <Route path=path!("/project/:id") view=ProjectLoader/>
                     <Route path=path!("/blog/:id") view=BlogLoader/>
@@ -617,6 +617,23 @@ fn Photos() -> impl IntoView {
                 <A href=base.path("/photos") attr:class="btn btn-secondary">"View All Photos"</A>
             </div>
         </section>
+    }
+}
+
+#[component]
+fn NotFoundPage() -> impl IntoView {
+    let base = use_context::<BasePath>().expect("BasePath context not found");
+    view! {
+        <div>
+            <Navbar/>
+            <main class="not-found container">
+                <div class="error-code">"404"</div>
+                <h1>"Oops! Page Not Found"</h1>
+                <p>"The page you are looking for might have been moved, deleted, or never existed in the first place."</p>
+                <A href=base.path("/") attr:class="btn btn-primary">"Return Home"</A>
+            </main>
+            <Footer/>
+        </div>
     }
 }
 

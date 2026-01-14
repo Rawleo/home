@@ -710,3 +710,50 @@ a.project-card {
 		font-size: 2.5rem;
 	}
 }
+
+/* 404 Page */
+.not-found {
+	min-height: 80vh;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	text-align: center;
+	padding: 8rem 2rem;
+}
+
+.error-code {
+	font-size: clamp(8rem, 20vw, 15rem);
+	font-weight: 900;
+	margin-bottom: 1rem;
+	background: linear-gradient(135deg, var(--accent-color) 0%, #a1a1a1 100%);
+	background-clip: text;
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	line-height: 1;
+	animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+
+	0%,
+	100% {
+		transform: translateY(0);
+	}
+
+	50% {
+		transform: translateY(-20px);
+	}
+}
+
+.not-found h1 {
+	font-size: clamp(2rem, 5vw, 3rem);
+	margin-bottom: 1.5rem;
+}
+
+.not-found p {
+	font-size: 1.2rem;
+	color: var(--secondary-color);
+	max-width: 600px;
+	margin-bottom: 3rem;
+}
