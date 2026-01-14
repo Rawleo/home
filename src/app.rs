@@ -11,6 +11,20 @@ use crate::data::{get_project_by_id, get_projects, Project, get_blog_by_id, get_
 #[derive(Copy, Clone, Debug)]
 struct LightboxState(WriteSignal<Option<String>>);
 
+#[derive(Clone, Debug)]
+pub struct BasePath(pub String);
+
+impl BasePath {
+    pub fn path(&self, path: &str) -> String {
+        let path = path.trim_start_matches('/');
+        if self.0.is_empty() {
+            format!("/{}", path)
+        } else {
+            format!("{}/{}", self.0, path)
+        }
+    }
+}
+
 pub fn shell(options: LeptosOptions) -> impl IntoView {
     view! {
         <!DOCTYPE html>
@@ -35,21 +49,34 @@ pub fn App() -> impl IntoView {
     let (selected_image, set_selected_image) = signal(None::<String>);
     provide_context(LightboxState(set_selected_image));
 
-    // Get base path from the HTML <base> tag
+    // Get base path from the HTML <base> tag or fallback to location
     let base_path = document()
         .query_selector("base")
         .ok()
         .flatten()
         .and_then(|base| base.get_attribute("href"))
-        .unwrap_or_else(|| "/".to_string())
-        .trim_end_matches('/')
-        .to_string();
+        .unwrap_or_else(|| {
+            let path = window().location().pathname().unwrap_or_default();
+            if path.starts_with("/home") {
+                "/home/".to_string()
+            } else {
+                "/".to_string()
+            }
+        });
+
+    // Leptos Router base should be the prefix without the trailing slash
+    let router_base = if base_path == "/" {
+        "".to_string()
+    } else {
+        base_path.trim_end_matches('/').to_string()
+    };
+    provide_context(BasePath(router_base.clone()));
 
     view! {
         <Stylesheet id="leptos" href="pkg/portfolio.css"/>
         <Title text="Ryan Son | Full-Stack Developer"/>
 
-        <Router base=base_path>
+        <Router base=router_base>
             <main>
                 <Routes fallback=|| "Page not found.".into_view()>
                     <Route path=path!("/") view=HomePage/>
@@ -92,6 +119,8 @@ pub fn ProjectLoader() -> impl IntoView {
         get_project_by_id(&id)
     };
 
+    let base = use_context::<BasePath>().expect("BasePath context not found");
+
     view! {
         {move || match project_data() {
             Some(data) => view! { <ProjectDetail project=data/> }.into_any(),
@@ -101,7 +130,7 @@ pub fn ProjectLoader() -> impl IntoView {
                     <div class="container" style="padding-top: 100px; margin-bottom: 30px; text-align: center;">
                         <h1>"Project Not Found"</h1>
                         <p>"The project you are looking for does not exist."</p>
-                        <A href="" attr:style="margin-top: 20px" attr:class="btn btn-primary">"Return Home"</A>
+                        <A href=base.path("/") attr:style="margin-top: 20px" attr:class="btn btn-primary">"Return Home"</A>
                     </div>
                     <Footer/>
                 </div>
@@ -112,12 +141,13 @@ pub fn ProjectLoader() -> impl IntoView {
 
 #[component]
 fn ProjectDetail(project: Project) -> impl IntoView {
+    let base = use_context::<BasePath>().expect("BasePath context not found");
     view! {
         <div>
             <Navbar/>
             <section class="project-detail">
                 <div class="container">
-                    <A href="#projects" attr:class="back-link">"← Back to Portfolio"</A>
+                    <A href=base.path("/#projects") attr:class="back-link">"← Back to Portfolio"</A>
 
                     <div class="project-header">
                         <span class="tag">{project.tag}</span>
@@ -262,10 +292,12 @@ fn Navbar() -> impl IntoView {
         if path == "/" { current_path == "/" } else { current_path.starts_with(path) }
     };
 
+    let base = use_context::<BasePath>().expect("BasePath context not found");
+
     view! {
         <nav>
             <div class="logo">
-                <A href="" on:click=move |_| set_is_open.set(false)>"Ryan Son"</A>
+                <A href=base.path("/") on:click=move |_| set_is_open.set(false)>"Ryan Son"</A>
             </div>
 
             <button
@@ -281,27 +313,27 @@ fn Navbar() -> impl IntoView {
 
             <ul class="nav-links" class:open=move || is_open.get()>
                 <li>
-                    <A href=""
+                    <A href=base.path("/")
                        class:active=move || is_active("/")
                        on:click=move |_| scroll_to("home")>"Home"</A>
                 </li>
                 <li>
-                    <A href="/projects"
+                    <A href=base.path("/projects")
                        class:active=move || is_active("/projects") || is_active("/project") || current_hash.get() == "#projects"
                        on:click=move |_| scroll_to("projects")>"Projects"</A>
                 </li>
                 <li>
-                    <A href="/blog"
+                    <A href=base.path("/blog")
                        class:active=move || is_active("/blog") || current_hash.get() == "#blogs"
                        on:click=move |_| scroll_to("blogs")>"Blogs"</A>
                 </li>
                 <li>
-                    <A href="/photos"
+                    <A href=base.path("/photos")
                        class:active=move || is_active("/photos") || current_hash.get() == "#photos"
                        on:click=move |_| scroll_to("photos")>"Photos"</A>
                 </li>
                 <li>
-                    <A href="/about"
+                    <A href=base.path("/about")
                        class:active=move || is_active("/about")
                        on:click=move |_| set_is_open.set(false)>"About"</A>
                 </li>
@@ -312,6 +344,7 @@ fn Navbar() -> impl IntoView {
 
 #[component]
 fn Hero() -> impl IntoView {
+    let base = use_context::<BasePath>().expect("BasePath context not found");
     view! {
         <section class="hero" id="home">
             <div class="container hero-content">
@@ -319,7 +352,7 @@ fn Hero() -> impl IntoView {
                 <h1>"From frontend to backend—designed to scale"</h1>
                 <p>"Full-stack developer crafting high-performance applications."</p>
                 <div class="hero-links">
-                    <A href="#projects" attr:class="btn btn-primary hero-project-btn">"View My Work"</A>
+                    <A href=base.path("/#projects") attr:class="btn btn-primary hero-project-btn">"View My Work"</A>
                     <a href="https://github.com/rawleo" class="btn btn-secondary" target="_blank">"GitHub"</a>
                     <a href="https://www.linkedin.com/in/ryanson50" class="btn btn-secondary" target="_blank">"LinkedIn"</a>
                     <a href="mailto:sonryan50@gmail.com" class="btn btn-secondary">"Email"</a>
@@ -332,6 +365,7 @@ fn Hero() -> impl IntoView {
 #[component]
 fn Projects() -> impl IntoView {
     let projects = get_projects();
+    let base = use_context::<BasePath>().expect("BasePath context not found");
 
     view! {
         <section class="projects container" id="projects">
@@ -350,7 +384,7 @@ fn Projects() -> impl IntoView {
                 }).collect::<Vec<_>>()}
             </div>
             <div style="text-align: center; margin-top: 3rem;">
-                <A href="/projects" attr:class="btn btn-secondary">"View All Projects"</A>
+                <A href=base.path("/projects") attr:class="btn btn-secondary">"View All Projects"</A>
             </div>
         </section>
     }
@@ -364,7 +398,8 @@ fn Card(
     tag: &'static str,
     base_path: &'static str,
 ) -> impl IntoView {
-    let link = format!("{}/{}", base_path, id);
+    let base = use_context::<BasePath>().expect("BasePath context not found");
+    let link = base.path(&format!("{}/{}", base_path, id));
 
     view! {
         <A href=link attr:class="project-card">
@@ -469,6 +504,7 @@ pub fn PhotosPage() -> impl IntoView {
 #[component]
 fn Blogs() -> impl IntoView {
     let blogs = get_blogs();
+    let base = use_context::<BasePath>().expect("BasePath context not found");
 
     view! {
         <section class="projects container" id="blogs">
@@ -487,7 +523,7 @@ fn Blogs() -> impl IntoView {
                 }).collect::<Vec<_>>()}
             </div>
             <div style="text-align: center; margin-top: 3rem;">
-                <A href="/blog" attr:class="btn btn-secondary">"View All Posts"</A>
+                <A href=base.path("/blog") attr:class="btn btn-secondary">"View All Posts"</A>
             </div>
         </section>
     }
@@ -504,6 +540,8 @@ pub fn BlogLoader() -> impl IntoView {
         get_blog_by_id(&id)
     };
 
+    let base = use_context::<BasePath>().expect("BasePath context not found");
+
     view! {
         {move || match blog_data() {
             Some(data) => view! { <BlogDetail blog=data/> }.into_any(),
@@ -513,7 +551,7 @@ pub fn BlogLoader() -> impl IntoView {
                     <div class="container" style="padding-top: 100px; margin-bottom: 30px; text-align: center;">
                         <h1>"Project Not Found"</h1>
                         <p>"The project you are looking for does not exist."</p>
-                        <A href="" attr:style="margin-top: 20px" attr:class="btn btn-primary">"Return Home"</A>
+                        <A href=base.path("/") attr:style="margin-top: 20px" attr:class="btn btn-primary">"Return Home"</A>
                     </div>
                     <Footer/>
                 </div>
@@ -524,12 +562,13 @@ pub fn BlogLoader() -> impl IntoView {
 
 #[component]
 fn BlogDetail(blog: Blog) -> impl IntoView {
+    let base = use_context::<BasePath>().expect("BasePath context not found");
     view! {
         <div>
             <Navbar/>
             <section class="project-detail">
                 <div class="container">
-                    <A href="#projects" attr:class="back-link">"← Back to Portfolio"</A>
+                    <A href=base.path("/#projects") attr:class="back-link">"← Back to Portfolio"</A>
 
                     <div class="project-header">
                         <span class="tag">{blog.tag}</span>
@@ -564,6 +603,7 @@ fn AboutPage() -> impl IntoView {
 #[component]
 fn Photos() -> impl IntoView {
     let photos = get_photos();
+    let base = use_context::<BasePath>().expect("BasePath context not found");
 
     view! {
         <section class="photos container" id="photos">
@@ -574,7 +614,7 @@ fn Photos() -> impl IntoView {
                 }).collect::<Vec<_>>()}
             </div>
             <div style="text-align: center; margin-top: 3rem;">
-                <A href="/photos" attr:class="btn btn-secondary">"View All Photos"</A>
+                <A href=base.path("/photos") attr:class="btn btn-secondary">"View All Photos"</A>
             </div>
         </section>
     }
