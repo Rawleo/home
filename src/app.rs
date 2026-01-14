@@ -107,7 +107,7 @@ fn ProjectDetail(project: Project) -> impl IntoView {
             <Navbar/>
             <section class="project-detail">
                 <div class="container">
-                    <a href="./#projects" class="back-link">"← Back to Portfolio"</a>
+                    <a href="/#projects" class="back-link">"← Back to Portfolio"</a>
 
                     <div class="project-header">
                         <span class="tag">{project.tag}</span>
@@ -255,7 +255,7 @@ fn Navbar() -> impl IntoView {
     view! {
         <nav>
             <div class="logo">
-                <a href="./" on:click=move |_| set_is_open.set(false)>"Ryan Son"</a>
+                <a href="/" on:click=move |_| set_is_open.set(false)>"Ryan Son"</a>
             </div>
 
             <button
@@ -309,7 +309,7 @@ fn Hero() -> impl IntoView {
                 <h1>"From frontend to backend—designed to scale"</h1>
                 <p>"Full-stack developer crafting high-performance applications."</p>
                 <div class="hero-links">
-                    <a href="./#projects" class="btn btn-primary hero-project-btn">"View My Work"</a>
+                    <a href="/#projects" class="btn btn-primary hero-project-btn">"View My Work"</a>
                     <a href="https://github.com/rawleo" class="btn btn-secondary" target="_blank">"GitHub"</a>
                     <a href="https://www.linkedin.com/in/ryanson50" class="btn btn-secondary" target="_blank">"LinkedIn"</a>
                     <a href="mailto:sonryan50@gmail.com" class="btn btn-secondary">"Email"</a>
@@ -519,7 +519,7 @@ fn BlogDetail(blog: Blog) -> impl IntoView {
             <Navbar/>
             <section class="project-detail">
                 <div class="container">
-                    <a href="./#projects" class="back-link">"← Back to Portfolio"</a>
+                    <a href="/#projects" class="back-link">"← Back to Portfolio"</a>
 
                     <div class="project-header">
                         <span class="tag">{blog.tag}</span>
