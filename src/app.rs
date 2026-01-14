@@ -8,6 +8,9 @@ use leptos_router::{
 
 use crate::data::{get_project_by_id, get_projects, Project, get_blog_by_id, get_blogs, Blog, get_photos, Photo};
 
+#[derive(Copy, Clone, Debug)]
+struct LightboxState(WriteSignal<Option<String>>);
+
 pub fn shell(options: LeptosOptions) -> impl IntoView {
     view! {
         <!DOCTYPE html>
@@ -29,6 +32,8 @@ pub fn shell(options: LeptosOptions) -> impl IntoView {
 #[component]
 pub fn App() -> impl IntoView {
     provide_meta_context();
+    let (selected_image, set_selected_image) = signal(None::<String>);
+    provide_context(LightboxState(set_selected_image));
 
     view! {
         <Stylesheet id="leptos" href="pkg/portfolio.css"/>
@@ -46,7 +51,25 @@ pub fn App() -> impl IntoView {
                     <Route path=path!("/about") view=AboutPage/>
                 </Routes>
             </main>
+            <Lightbox selected_image=selected_image set_selected_image=set_selected_image/>
         </Router>
+    }
+}
+
+#[component]
+fn Lightbox(
+    selected_image: ReadSignal<Option<String>>,
+    set_selected_image: WriteSignal<Option<String>>
+) -> impl IntoView {
+    view! {
+        {move || selected_image.get().map(|url| view! {
+            <div class="lightbox-overlay" on:click=move |_| set_selected_image.set(None)>
+                <div class="lightbox-content" on:click=move |ev| ev.stop_propagation()>
+                    <img src=url alt="Full size photo"/>
+                    <button class="lightbox-close" on:click=move |_| set_selected_image.set(None)>"×"</button>
+                </div>
+            </div>
+        })}
     }
 }
 
@@ -400,8 +423,11 @@ pub fn BlogPage() -> impl IntoView {
 
 #[component]
 fn PhotoCard(photo: Photo) -> impl IntoView {
+    let setter = use_context::<LightboxState>().expect("LightboxState context not found").0;
+    let url = photo.url.to_string();
+
     view! {
-        <div class="photo-card">
+        <div class="photo-card" on:click=move |_| setter.set(Some(url.clone()))>
             <img src=photo.url alt=photo.caption/>
             <div class="photo-caption">{photo.caption}</div>
         </div>
@@ -419,7 +445,9 @@ pub fn PhotosPage() -> impl IntoView {
                 <h1 class="section-title">"Photos"</h1>
                 <div class="photos-grid">
                     {photos.into_iter().map(|photo| {
-                        view! { <PhotoCard photo=photo/> }
+                        view! {
+                            <PhotoCard photo=photo />
+                        }
                     }).collect::<Vec<_>>()}
                 </div>
             </section>
