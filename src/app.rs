@@ -91,7 +91,7 @@ pub fn ProjectLoader() -> impl IntoView {
                     <div class="container" style="padding-top: 100px; margin-bottom: 30px; text-align: center;">
                         <h1>"Project Not Found"</h1>
                         <p>"The project you are looking for does not exist."</p>
-                        <A href="/" attr:style="margin-top: 20px" attr:class="btn btn-primary">"Return Home"</A>
+                        <A href="" attr:style="margin-top: 20px" attr:class="btn btn-primary">"Return Home"</A>
                     </div>
                     <Footer/>
                 </div>
@@ -107,7 +107,7 @@ fn ProjectDetail(project: Project) -> impl IntoView {
             <Navbar/>
             <section class="project-detail">
                 <div class="container">
-                    <A href="/#projects" attr:class="back-link">"← Back to Portfolio"</A>
+                    <A href="#projects" attr:class="back-link">"← Back to Portfolio"</A>
 
                     <div class="project-header">
                         <span class="tag">{project.tag}</span>
@@ -255,7 +255,7 @@ fn Navbar() -> impl IntoView {
     view! {
         <nav>
             <div class="logo">
-                <A href="/" on:click=move |_| set_is_open.set(false)>"Ryan Son"</A>
+                <A href="" on:click=move |_| set_is_open.set(false)>"Ryan Son"</A>
             </div>
 
             <button
@@ -271,7 +271,7 @@ fn Navbar() -> impl IntoView {
 
             <ul class="nav-links" class:open=move || is_open.get()>
                 <li>
-                    <A href="/"
+                    <A href=""
                        class:active=move || is_active("/")
                        on:click=move |_| scroll_to("home")>"Home"</A>
                 </li>
@@ -309,7 +309,7 @@ fn Hero() -> impl IntoView {
                 <h1>"From frontend to backend—designed to scale"</h1>
                 <p>"Full-stack developer crafting high-performance applications."</p>
                 <div class="hero-links">
-                    <A href="/#projects" attr:class="btn btn-primary hero-project-btn">"View My Work"</A>
+                    <A href="#projects" attr:class="btn btn-primary hero-project-btn">"View My Work"</A>
                     <a href="https://github.com/rawleo" class="btn btn-secondary" target="_blank">"GitHub"</a>
                     <a href="https://www.linkedin.com/in/ryanson50" class="btn btn-secondary" target="_blank">"LinkedIn"</a>
                     <a href="mailto:sonryan50@gmail.com" class="btn btn-secondary">"Email"</a>
@@ -503,7 +503,7 @@ pub fn BlogLoader() -> impl IntoView {
                     <div class="container" style="padding-top: 100px; margin-bottom: 30px; text-align: center;">
                         <h1>"Project Not Found"</h1>
                         <p>"The project you are looking for does not exist."</p>
-                        <A href="/" attr:style="margin-top: 20px" attr:class="btn btn-primary">"Return Home"</A>
+                        <A href="" attr:style="margin-top: 20px" attr:class="btn btn-primary">"Return Home"</A>
                     </div>
                     <Footer/>
                 </div>
@@ -519,7 +519,7 @@ fn BlogDetail(blog: Blog) -> impl IntoView {
             <Navbar/>
             <section class="project-detail">
                 <div class="container">
-                    <A href="/#projects" attr:class="back-link">"← Back to Portfolio"</A>
+                    <A href="#projects" attr:class="back-link">"← Back to Portfolio"</A>
 
                     <div class="project-header">
                         <span class="tag">{blog.tag}</span>
