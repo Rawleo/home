@@ -1,7 +1,7 @@
 use leptos::prelude::*;
 use leptos_meta::{provide_meta_context, MetaTags, Stylesheet, Title};
 use leptos_router::{
-    components::{Route, Router, Routes},
+    components::{A, Route, Router, Routes},
     hooks::{use_location, use_params_map},
     path,
 };
@@ -91,7 +91,7 @@ pub fn ProjectLoader() -> impl IntoView {
                     <div class="container" style="padding-top: 100px; margin-bottom: 30px; text-align: center;">
                         <h1>"Project Not Found"</h1>
                         <p>"The project you are looking for does not exist."</p>
-                        <a href="/" style="margin-top: 20px" class="btn btn-primary">"Return Home"</a>
+                        <A href="/" attr:style="margin-top: 20px" attr:class="btn btn-primary">"Return Home"</A>
                     </div>
                     <Footer/>
                 </div>
@@ -107,7 +107,7 @@ fn ProjectDetail(project: Project) -> impl IntoView {
             <Navbar/>
             <section class="project-detail">
                 <div class="container">
-                    <a href="/#projects" class="back-link">"← Back to Portfolio"</a>
+                    <A href="/#projects" attr:class="back-link">"← Back to Portfolio"</A>
 
                     <div class="project-header">
                         <span class="tag">{project.tag}</span>
@@ -255,7 +255,7 @@ fn Navbar() -> impl IntoView {
     view! {
         <nav>
             <div class="logo">
-                <a href="/" on:click=move |_| set_is_open.set(false)>"Ryan Son"</a>
+                <A href="/" on:click=move |_| set_is_open.set(false)>"Ryan Son"</A>
             </div>
 
             <button
@@ -271,29 +271,29 @@ fn Navbar() -> impl IntoView {
 
             <ul class="nav-links" class:open=move || is_open.get()>
                 <li>
-                    <a href="/"
+                    <A href="/"
                        class:active=move || is_active("/")
-                       on:click=move |_| scroll_to("home")>"Home"</a>
+                       on:click=move |_| scroll_to("home")>"Home"</A>
                 </li>
                 <li>
-                    <a href="/projects"
+                    <A href="/projects"
                        class:active=move || is_active("/projects") || is_active("/project") || current_hash.get() == "#projects"
-                       on:click=move |_| scroll_to("projects")>"Projects"</a>
+                       on:click=move |_| scroll_to("projects")>"Projects"</A>
                 </li>
                 <li>
-                    <a href="/blog"
+                    <A href="/blog"
                        class:active=move || is_active("/blog") || current_hash.get() == "#blogs"
-                       on:click=move |_| scroll_to("blogs")>"Blogs"</a>
+                       on:click=move |_| scroll_to("blogs")>"Blogs"</A>
                 </li>
                 <li>
-                    <a href="/photos"
+                    <A href="/photos"
                        class:active=move || is_active("/photos") || current_hash.get() == "#photos"
-                       on:click=move |_| scroll_to("photos")>"Photos"</a>
+                       on:click=move |_| scroll_to("photos")>"Photos"</A>
                 </li>
                 <li>
-                    <a href="/about"
+                    <A href="/about"
                        class:active=move || is_active("/about")
-                       on:click=move |_| set_is_open.set(false)>"About"</a>
+                       on:click=move |_| set_is_open.set(false)>"About"</A>
                 </li>
             </ul>
         </nav>
@@ -309,7 +309,7 @@ fn Hero() -> impl IntoView {
                 <h1>"From frontend to backend—designed to scale"</h1>
                 <p>"Full-stack developer crafting high-performance applications."</p>
                 <div class="hero-links">
-                    <a href="/#projects" class="btn btn-primary hero-project-btn">"View My Work"</a>
+                    <A href="/#projects" attr:class="btn btn-primary hero-project-btn">"View My Work"</A>
                     <a href="https://github.com/rawleo" class="btn btn-secondary" target="_blank">"GitHub"</a>
                     <a href="https://www.linkedin.com/in/ryanson50" class="btn btn-secondary" target="_blank">"LinkedIn"</a>
                     <a href="mailto:sonryan50@gmail.com" class="btn btn-secondary">"Email"</a>
@@ -340,7 +340,7 @@ fn Projects() -> impl IntoView {
                 }).collect::<Vec<_>>()}
             </div>
             <div style="text-align: center; margin-top: 3rem;">
-                <a href="/projects" class="btn btn-secondary">"View All Projects"</a>
+                <A href="/projects" attr:class="btn btn-secondary">"View All Projects"</A>
             </div>
         </section>
     }
@@ -357,11 +357,11 @@ fn Card(
     let link = format!("{}/{}", base_path, id);
 
     view! {
-        <a href=link class="project-card">
+        <A href=link attr:class="project-card">
             <span class="tag">{tag}</span>
             <h3>{title}</h3>
             <p>{description}</p>
-        </a>
+        </A>
     }
 }
 
@@ -477,7 +477,7 @@ fn Blogs() -> impl IntoView {
                 }).collect::<Vec<_>>()}
             </div>
             <div style="text-align: center; margin-top: 3rem;">
-                <a href="/blog" class="btn btn-secondary">"View All Posts"</a>
+                <A href="/blog" attr:class="btn btn-secondary">"View All Posts"</A>
             </div>
         </section>
     }
@@ -503,7 +503,7 @@ pub fn BlogLoader() -> impl IntoView {
                     <div class="container" style="padding-top: 100px; margin-bottom: 30px; text-align: center;">
                         <h1>"Project Not Found"</h1>
                         <p>"The project you are looking for does not exist."</p>
-                        <a href="/" style="margin-top: 20px" class="btn btn-primary">"Return Home"</a>
+                        <A href="/" attr:style="margin-top: 20px" attr:class="btn btn-primary">"Return Home"</A>
                     </div>
                     <Footer/>
                 </div>
@@ -519,7 +519,7 @@ fn BlogDetail(blog: Blog) -> impl IntoView {
             <Navbar/>
             <section class="project-detail">
                 <div class="container">
-                    <a href="/#projects" class="back-link">"← Back to Portfolio"</a>
+                    <A href="/#projects" attr:class="back-link">"← Back to Portfolio"</A>
 
                     <div class="project-header">
                         <span class="tag">{blog.tag}</span>
@@ -564,7 +564,7 @@ fn Photos() -> impl IntoView {
                 }).collect::<Vec<_>>()}
             </div>
             <div style="text-align: center; margin-top: 3rem;">
-                <a href="/photos" class="btn btn-secondary">"View All Photos"</a>
+                <A href="/photos" attr:class="btn btn-secondary">"View All Photos"</A>
             </div>
         </section>
     }
