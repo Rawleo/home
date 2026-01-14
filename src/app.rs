@@ -35,11 +35,21 @@ pub fn App() -> impl IntoView {
     let (selected_image, set_selected_image) = signal(None::<String>);
     provide_context(LightboxState(set_selected_image));
 
+    // Get base path from the HTML <base> tag
+    let base_path = document()
+        .query_selector("base")
+        .ok()
+        .flatten()
+        .and_then(|base| base.get_attribute("href"))
+        .unwrap_or_else(|| "/".to_string())
+        .trim_end_matches('/')
+        .to_string();
+
     view! {
         <Stylesheet id="leptos" href="pkg/portfolio.css"/>
         <Title text="Ryan Son | Full-Stack Developer"/>
 
-        <Router base=option_env!("LEPTOS_ROUTER_BASE").unwrap_or_default()>
+        <Router base=base_path>
             <main>
                 <Routes fallback=|| "Page not found.".into_view()>
                     <Route path=path!("/") view=HomePage/>
