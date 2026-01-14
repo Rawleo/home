@@ -6,7 +6,7 @@ use leptos_router::{
     path,
 };
 
-use crate::data::{get_project_by_id, get_projects, Project, get_blog_by_id, get_blogs, Blog};
+use crate::data::{get_project_by_id, get_projects, Project, get_blog_by_id, get_blogs, Blog, get_photos, Photo};
 
 pub fn shell(options: LeptosOptions) -> impl IntoView {
     view! {
@@ -40,7 +40,9 @@ pub fn App() -> impl IntoView {
                     <Route path=path!("/") view=HomePage/>
                     <Route path=path!("/project/:id") view=ProjectLoader/>
                     <Route path=path!("/blog/:id") view=BlogLoader/>
-                    // <Route path=path!("/blog") view=Blog/>
+                    <Route path=path!("/projects") view=ProjectsPage/>
+                    <Route path=path!("/blog") view=BlogPage/>
+                    <Route path=path!("/photos") view=PhotosPage/>
                     <Route path=path!("/about") view=AboutPage/>
                 </Routes>
             </main>
@@ -246,27 +248,27 @@ fn Navbar() -> impl IntoView {
 
             <ul class="nav-links" class:open=move || is_open.get()>
                 <li>
-                    <a href="./#home"
+                    <a href="/"
                        class:active=move || is_active("/")
                        on:click=move |_| scroll_to("home")>"Home"</a>
                 </li>
                 <li>
-                    <a href="./#projects"
-                       class:active=move || is_active("/project") || current_hash.get() == "#projects"
+                    <a href="/projects"
+                       class:active=move || is_active("/projects") || is_active("/project") || current_hash.get() == "#projects"
                        on:click=move |_| scroll_to("projects")>"Projects"</a>
                 </li>
                 <li>
-                    <a href="./#blogs"
+                    <a href="/blog"
                        class:active=move || is_active("/blog") || current_hash.get() == "#blogs"
                        on:click=move |_| scroll_to("blogs")>"Blogs"</a>
                 </li>
                 <li>
-                    <a href="./#photos"
+                    <a href="/photos"
                        class:active=move || is_active("/photos") || current_hash.get() == "#photos"
                        on:click=move |_| scroll_to("photos")>"Photos"</a>
                 </li>
                 <li>
-                    <a href="about"
+                    <a href="/about"
                        class:active=move || is_active("/about")
                        on:click=move |_| set_is_open.set(false)>"About"</a>
                 </li>
@@ -302,24 +304,127 @@ fn Projects() -> impl IntoView {
         <section class="projects container" id="projects">
             <h2 class="section-title">"Featured Projects"</h2>
             <div class="projects-grid">
-                {projects.into_iter().map(|project| {
-                    view! { <ProjectCard project=project/> }
+                {projects.into_iter().take(3).map(|project| {
+                    view! {
+                        <Card
+                            id=project.id
+                            title=project.title
+                            description=project.description
+                            tag=project.tag
+                            base_path="project"
+                        />
+                    }
                 }).collect::<Vec<_>>()}
+            </div>
+            <div style="text-align: center; margin-top: 3rem;">
+                <a href="/projects" class="btn btn-secondary">"View All Projects"</a>
             </div>
         </section>
     }
 }
 
 #[component]
-fn ProjectCard(project: Project) -> impl IntoView {
-    let link = format!("project/{}", project.id);
+fn Card(
+    id: &'static str,
+    title: &'static str,
+    description: &'static str,
+    tag: &'static str,
+    base_path: &'static str,
+) -> impl IntoView {
+    let link = format!("{}/{}", base_path, id);
 
     view! {
         <a href=link class="project-card">
-            <span class="tag">{project.tag}</span>
-            <h3>{project.title}</h3>
-            <p>{project.description}</p>
+            <span class="tag">{tag}</span>
+            <h3>{title}</h3>
+            <p>{description}</p>
         </a>
+    }
+}
+
+#[component]
+pub fn ProjectsPage() -> impl IntoView {
+    let projects = get_projects();
+
+    view! {
+        <div>
+            <Navbar/>
+            <section class="projects container" style="padding-top: 120px;">
+                <h1 class="section-title">"All Projects"</h1>
+                <div class="projects-grid">
+                    {projects.into_iter().map(|project| {
+                        view! {
+                            <Card
+                                id=project.id
+                                title=project.title
+                                description=project.description
+                                tag=project.tag
+                                base_path="project"
+                            />
+                        }
+                    }).collect::<Vec<_>>()}
+                </div>
+            </section>
+            <Footer/>
+        </div>
+    }
+}
+
+#[component]
+pub fn BlogPage() -> impl IntoView {
+    let blogs = get_blogs();
+
+    view! {
+        <div>
+            <Navbar/>
+            <section class="projects container" style="padding-top: 120px;">
+                <h1 class="section-title">"Blog"</h1>
+                <div class="projects-grid">
+                    {blogs.into_iter().map(|blog| {
+                        view! {
+                            <Card
+                                id=blog.id
+                                title=blog.title
+                                description=blog.description
+                                tag=blog.tag
+                                base_path="blog"
+                            />
+                        }
+                    }).collect::<Vec<_>>()}
+                </div>
+            </section>
+            <Footer/>
+        </div>
+    }
+}
+
+#[component]
+fn PhotoCard(photo: Photo) -> impl IntoView {
+    view! {
+        <div class="photo-card">
+            <img src=photo.url alt=photo.caption/>
+            <div class="photo-caption">{photo.caption}</div>
+        </div>
+    }
+}
+
+#[component]
+pub fn PhotosPage() -> impl IntoView {
+    let photos = get_photos();
+
+    view! {
+        <div>
+            <Navbar/>
+            <section class="photos container" style="padding-top: 120px;">
+                <h1 class="section-title">"Photos"</h1>
+                <div class="photos-grid">
+                    {photos.into_iter().map(|photo| {
+                        view! { <PhotoCard photo=photo/> }
+                    }).collect::<Vec<_>>()}
+                </div>
+            </section>
+            <Footer/>
+        </div>
     }
 }
 
@@ -331,26 +436,26 @@ fn Blogs() -> impl IntoView {
         <section class="projects container" id="blogs">
             <h2 class="section-title">"Featured Blogs"</h2>
             <div class="projects-grid">
-                {blogs.into_iter().map(|blog| {
-                    view! { <BlogCard blog=blog/> }
+                {blogs.into_iter().take(3).map(|blog| {
+                    view! {
+                        <Card
+                            id=blog.id
+                            title=blog.title
+                            description=blog.description
+                            tag=blog.tag
+                            base_path="blog"
+                        />
+                    }
                 }).collect::<Vec<_>>()}
+            </div>
+            <div style="text-align: center; margin-top: 3rem;">
+                <a href="/blog" class="btn btn-secondary">"View All Posts"</a>
             </div>
         </section>
     }
 }
 
-#[component]
-fn BlogCard(blog: Blog) -> impl IntoView {
-    let link = format!("blog/{}", blog.id);
 
-    view! {
-        <a href=link class="project-card">
-            <span class="tag">{blog.tag}</span>
-            <h3>{blog.title}</h3>
-            <p>{blog.description}</p>
-        </a>
-    }
-}
 
 #[component]
 pub fn BlogLoader() -> impl IntoView {
@@ -420,14 +525,18 @@ fn AboutPage() -> impl IntoView {
 
 #[component]
 fn Photos() -> impl IntoView {
+    let photos = get_photos();
+
     view! {
         <section class="photos container" id="photos">
             <h2 class="section-title">"Photos"</h2>
             <div class="photos-grid">
-                <div class="photo-card">
-                    <img src="images/temple-photo.jpg" alt="Temple at sunrise"/>
-                    <div class="photo-caption">"Angkor Wat, Cambodia"</div>
-                </div>
+                {photos.into_iter().take(3).map(|photo| {
+                    view! { <PhotoCard photo=photo/> }
+                }).collect::<Vec<_>>()}
+            </div>
+            <div style="text-align: center; margin-top: 3rem;">
+                <a href="/photos" class="btn btn-secondary">"View All Photos"</a>
             </div>
         </section>
     }

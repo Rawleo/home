@@ -34,6 +34,24 @@ pub struct Poster {
 #[derive(Clone, Debug, PartialEq)]
 pub struct Photo {
     pub url: &'static str,
+    pub caption: &'static str,
+}
+
+pub fn get_photos() -> Vec<Photo> {
+    vec![
+        Photo {
+            url: "images/temple-photo.jpg",
+            caption: "Angkor Wat, Cambodia",
+        },
+        Photo {
+            url: "images/SpotWelderFront.jpg",
+            caption: "DIY Spotwelder - Front View",
+        },
+        Photo {
+            url: "images/SpotWelderTop.jpg",
+            caption: "DIY Spotwelder - Top View",
+        },
+    ]
 }
 
 pub fn get_projects() -> Vec<Project> {
@@ -116,10 +134,10 @@ pub fn get_projects() -> Vec<Project> {
             paper_link: None,
             posters: None,
             photos: Some(vec![
-                Photo { url: "images/SpotWelderBare.jpg"},
-                Photo { url: "images/SpotWelderTop.jpg"},
-                Photo { url: "images/SpotWelderFront.jpg"},
-                Photo { url: "images/CoilRemoval.jpg"},
+                Photo { url: "images/SpotWelderBare.jpg", caption: "Bare Transformer" },
+                Photo { url: "images/SpotWelderTop.jpg", caption: "Top View" },
+                Photo { url: "images/SpotWelderFront.jpg", caption: "Front View" },
+                Photo { url: "images/CoilRemoval.jpg", caption: "Removing the Secondary Coil" },
             ]),
         },
         // Project {
