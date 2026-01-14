@@ -33,9 +33,10 @@ jobs:
         uses: jetli/trunk-action@v0.5.0
 
       - name: Build
+        env:
+          LEPTOS_ROUTER_BASE: /home
         run: |
           sed -i 's|base href="/"|base href="/home/"|' index.html
-          export LEPTOS_ROUTER_BASE=/home
           cargo clean -p portfolio
           trunk build --features csr --release --public-url /home/
           cp dist/index.html dist/404.html
