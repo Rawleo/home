@@ -34,7 +34,6 @@ jobs:
 
       - name: Build
         run: |
-          sed -i 's|base href="/"|base href="/home/"|' index.html
           export LEPTOS_ROUTER_BASE=/home
           cargo clean -p portfolio
           trunk build --features csr --release --public-url /home/
