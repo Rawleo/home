@@ -21,7 +21,7 @@ pub struct Blog {
     pub subtitle: &'static str,
     pub tag: &'static str,
     pub description: &'static str,
-    pub overview: &'static str,
+    pub body: &'static str,
     pub live_link: Option<&'static str>,
 }
 
@@ -105,21 +105,21 @@ pub fn get_projects() -> Vec<Project> {
             posters: None,
             photos: None,
         },
-        Project {
-            id: "ats-resume-builder",
-            title: "ATS Resume Builder",
-            subtitle: "Stateless, Privacy-Focused Resume Generator",
-            tag: "Web App",
-            description: "A Go-based web application for generating ATS-compliant resumes in PDF and DOCX formats.",
-            overview: "A stateless web application built with Go, Fiber, and HTMX. It allows users to create professional, ATS-optimized resumes without account creation or data storage. Features include dual export formats (PDF/DOCX) and a dynamic, privacy-first architecture.",
-            role: "Full-Stack Developer",
-            technologies: Some(vec!["Go", "Fiber", "HTMX", "Tailwind CSS", "Chromedp", "Render"]),
-            live_link: Some("https://ats-resume-builder-1194.onrender.com"),
-            code_link: Some("https://github.com/Rawleo/ats-resume-builder"),
-            paper_link: None,
-            posters: None,
-            photos: None,
-        },
+        // Project {
+        //     id: "ats-resume-builder",
+        //     title: "ATS Resume Builder",
+        //     subtitle: "Stateless, Privacy-Focused Resume Generator",
+        //     tag: "Web App",
+        //     description: "A Go-based web application for generating ATS-compliant resumes in PDF and DOCX formats.",
+        //     overview: "A stateless web application built with Go, Fiber, and HTMX. It allows users to create professional, ATS-optimized resumes without account creation or data storage. Features include dual export formats (PDF/DOCX) and a dynamic, privacy-first architecture.",
+        //     role: "Full-Stack Developer",
+        //     technologies: Some(vec!["Go", "Fiber", "HTMX", "Tailwind CSS", "Chromedp", "Render"]),
+        //     live_link: Some("https://ats-resume-builder-1194.onrender.com"),
+        //     code_link: Some("https://github.com/Rawleo/ats-resume-builder"),
+        //     paper_link: None,
+        //     posters: None,
+        //     photos: None,
+        // },
         Project {
             id: "spotwelder",
             title: "DIY Spotwelder",
@@ -160,14 +160,14 @@ pub fn get_projects() -> Vec<Project> {
 pub fn get_blogs() -> Vec<Blog> {
     vec![
         Blog {
-            id: "010526",
-            title: "Sample",
-            subtitle: "Sample Blog",
-            tag: "Blog Sample",
-            description: "Blog Description",
-            overview: "Blog Overview",
+            id: "082126",
+            title: "Hello",
+            subtitle: "August 21st, 2026",
+            tag: "Blog",
+            description: "Downsizing and Clutter",
+            body: "Life after college has me obsessed with downsizing. I feel at war with myself, trying to assess what and what not to keep. It does not help that there are several personal projects at various stages begging for my attention. Hopefully, I can organize everything in a less cluttered and more space efficient manner.",
             live_link: None
-        }
+        },
     ]
 }
 

@@ -348,7 +348,7 @@ fn Hero() -> impl IntoView {
     view! {
         <section class="hero" id="home">
             <div class="container hero-content">
-                <img src="images/headshot.jpg" alt="Profile" class="hero-image"/>
+                <img src="images/Headshot_Ryan.jpg" alt="Profile" class="hero-image"/>
                 <h1>"From frontend to backend—designed to scale"</h1>
                 <p>"Full-stack developer crafting high-performance applications."</p>
                 <div class="hero-links">
@@ -578,8 +578,7 @@ fn BlogDetail(blog: Blog) -> impl IntoView {
 
                     <div class="project-content">
                         <div class="project-section">
-                            <h2>"Overview"</h2>
-                            <p>{blog.overview}</p>
+                            <p>{blog.body}</p>
                         </div>
                     </div>
                 </div>
@@ -645,14 +644,13 @@ fn About() -> impl IntoView {
                 <h2 class="section-title">"About Me"</h2>
                 <div class="about-grid">
                     <div class="about-image-wrapper">
-                        <img src="images/headshot.jpg" alt="Ryan Son" class="about-image"/>
+                        <img src="images/Headshot_Ryan.jpg" alt="Ryan Son" class="about-image"/>
                     </div>
                     <div class="about-text">
-                        <p>"Hello! I'm Ryan Son, a junior full-stack developer and soon to be graduate of Carleton College. I'm crazy passionate about crafting scalable, fast, and efficient applications."</p>
-                        <p>"My journey in software development is driven by a curiosity for how complex systems work and a desire to build tools that make a real impact. With a background in research and a keen interest in high-performance computing, I love finding ways to improve the performance of my applications."</p>
-                        <p>"When I'm not coding, you can find me exploring new technologies, home-labbing, or capturing the world through my lens (as seen in my Photos section!)."</p>
+                        <p>"Hello! I'm Ryan Son, a junior full-stack developer and graduate of Carleton College. I'm passionate about crafting scalable, fast, and efficient applications."</p>
+                        <p>"My journey in software development is driven by a curiosity for complex systems and a desire to design useful tools. I love finding ways to improve the performance of my applications."</p>
+                        <p>"Outside of coding, I enjoy hiking, biking, and capturing the world through my lens."</p>
                         <p>"Thank you for stopping by!"</p>
-                        <p>"I'm currently looking for full-time opportunities, so feel free to reach out!"</p>
                     </div>
                 </div>
             </div>
