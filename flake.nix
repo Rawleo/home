@@ -31,6 +31,7 @@
             f
             nodejs_21
             wasm-pack
+            trunk
           ];
         };
       }
