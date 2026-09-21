@@ -168,6 +168,20 @@ pub fn get_blogs() -> Vec<Blog> {
             body: "Life after college has me obsessed with downsizing. I feel at war with myself, trying to assess what and what not to keep. It does not help that there are several personal projects at various stages begging for my attention. Hopefully, I can organize everything in a less cluttered and more space efficient manner.",
             live_link: None
         },
+        Blog {
+            id: "092026",
+            title: "Books",
+            subtitle: "September 20st, 2026",
+            tag: "Blog",
+            description: "Books I have read as of late.",
+            body: "
+            This last summer, I had the pleasure of reading several books that have captured a significant amount of my attention. The books were Stay True by Hua Hsu, Invisible Man by Ralph Ellison, and Atonement by Ian McEwan.
+            Stay True was an excellent memoir and one where I went in blind enticed only by the cover, I did not even read the book blurb. The narrator did a fantastic job of exploring his mind, how he saw himself within it, and how he navigated his relationships. 
+            Now, my initial introduction to Invisible Man was through The Sympathizer by Viet Thanh Nguyen, it does a quick call back to Ellison in its introduction of the narrator as a spook. This was a long and dense read, I found myself having to read it twice through to try and grasp a better vision of the world that Ellison was creating. A thought provoking read it was. 
+            Atonement was a very different book from Invisible Man, and it felt like literary whiplash when I started it. Nevertheless, I was sucked into this new world and captivated by how McEwan could capture the environment so well in the eyes of his characters. Overall, these three books had been incredible reads this past summer and I hope to continue reading books that express so much emotion.",
+            live_link: None
+        },
+
     ]
 }
 

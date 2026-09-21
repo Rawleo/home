@@ -663,7 +663,7 @@ fn Footer() -> impl IntoView {
     view! {
         <footer>
             <div class="container">
-                <p>"© 2025 Portfolio. Built with Rust & Leptos."</p>
+                <p>"© 2026 Portfolio. Built with Rust & Leptos."</p>
                 <div class="footer-links">
                     <a href="https://github.com/rawleo" target="_blank">"GitHub"</a>
                     <a href="https://www.linkedin.com/in/ryanson50" target="_blank">"LinkedIn"</a>
