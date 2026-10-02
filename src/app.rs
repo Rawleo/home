@@ -139,22 +139,10 @@ pub fn ProjectLoader() -> impl IntoView {
         get_project_by_id(&id)
     };
 
-    let base = use_context::<BasePath>().expect("BasePath context not found");
-
     view! {
         {move || match project_data() {
             Some(data) => view! { <ProjectDetail project=data/> }.into_any(),
-            None => view! {
-                <div>
-                    <Navbar/>
-                    <div class="container" style="padding-top: 100px; margin-bottom: 30px; text-align: center;">
-                        <h1>"Project Not Found"</h1>
-                        <p>"The project you are looking for does not exist."</p>
-                        <A href=base.path("/") attr:style="margin-top: 20px" attr:class="btn btn-primary">"Return Home"</A>
-                    </div>
-                    <Footer/>
-                </div>
-            }.into_any(),
+            None => view! { <NotFoundPage /> }.into_any(),
         }}
     }
 }
@@ -517,7 +505,7 @@ pub fn BlogPage() -> impl IntoView {
         <div>
             <Navbar/>
             <section class="projects container" style="padding-top: 120px;">
-                <h1 class="section-title">"Chronicles & Logs"</h1>
+                <h1 class="section-title">"Chronicles & Blogs"</h1>
                 <div class="projects-grid">
                     {blogs.into_iter().map(|blog| {
                         view! {
@@ -614,17 +602,7 @@ pub fn BlogLoader() -> impl IntoView {
     view! {
         {move || match blog_data() {
             Some(data) => view! { <BlogDetail blog=data/> }.into_any(),
-            None => view! {
-                <div>
-                    <Navbar/>
-                    <div class="container" style="padding-top: 100px; margin-bottom: 30px; text-align: center;">
-                        <h1>"Project Not Found"</h1>
-                        <p>"The project you are looking for does not exist."</p>
-                        <A href=base.path("/") attr:style="margin-top: 20px" attr:class="btn btn-primary">"Return Home"</A>
-                    </div>
-                    <Footer/>
-                </div>
-            }.into_any(),
+            None => view! { <NotFoundPage /> }.into_any(),
         }}
     }
 }
@@ -707,6 +685,22 @@ fn NotFoundPage() -> impl IntoView {
 }
 
 #[component]
+fn DataNotFound() -> impl IntoView {
+    let base = use_context::<BasePath>().expect("BasePath context not found");
+    view! {
+        <div>
+            <Navbar/>
+            <div class="container" style="padding-top: 100px; margin-bottom: 30px; text-align: center;">
+                <h1>"Data Not Found"</h1>
+                <p>"The project you are looking for does not exist."</p>
+                <A href=base.path("/") attr:style="margin-top: 20px" attr:class="btn btn-primary">"Return Home"</A>
+            </div>
+            <Footer/>
+        </div>
+    }
+}
+
+#[component]
 fn About() -> impl IntoView {
     view! {
         <section class="about section-container" id="about">
@@ -738,10 +732,12 @@ fn About() -> impl IntoView {
                     </div>
                     <div class="about-text">
                         <div class="about-dialogue-prompt">"IT'S DANGEROUS TO CODE ALONE! WELCOME TRAVELER."</div>
-                        <p>"Hello! I'm Ryan Son, a junior full-stack developer and graduate of Carleton College. I'm passionate about crafting scalable, fast, and efficient applications."</p>
-                        <p>"My journey in software development is driven by a curiosity for complex systems and a desire to design useful tools. I love finding ways to improve the performance of my applications."</p>
-                        <p>"Outside of coding, I enjoy hiking, biking, and capturing the world through my lens."</p>
-                        <p>"Thank you for stopping by! Feel free to explore my quests and chronicles below."</p>
+                        <p>"Hello! I'm Ryan Son, a software engineer and graduate of Carleton College. Throughout high school and \
+                        undergrad I had worked as a bike mechanic, which has helped ingrained into my soul the importance of independence \
+                        and staying curious."</p>
+                        <p>"I love trying my hand at the problem-solving opportunities which come with software. Tuning apps feels akin to working with bikes!"</p>
+                        <p>"Outside of coding: I enjoy hiking, biking, and capturing the world through my lens."</p>
+                        <p>"Thank you for stopping by! Feel free to browse around."</p>
                     </div>
                 </div>
             </div>
