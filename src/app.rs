@@ -1,15 +1,25 @@
 use leptos::prelude::*;
 use leptos_meta::{provide_meta_context, MetaTags, Stylesheet, Title};
 use leptos_router::{
-    components::{A, Route, Router, Routes},
+    components::{Route, Router, Routes, A},
     hooks::{use_location, use_params_map},
     path,
 };
 
-use crate::data::{get_project_by_id, get_projects, Project, get_blog_by_id, get_blogs, Blog, get_photos, Photo};
+use crate::data::{
+    get_blog_by_id, get_blogs, get_photos, get_project_by_id, get_projects, Blog, Photo, Project,
+};
 
 #[derive(Copy, Clone, Debug)]
 struct LightboxState(WriteSignal<Option<String>>);
+
+#[derive(Copy, Clone, Debug)]
+pub struct RetroSettings {
+    pub crt_enabled: ReadSignal<bool>,
+    pub set_crt_enabled: WriteSignal<bool>,
+    pub sfx_enabled: ReadSignal<bool>,
+    pub set_sfx_enabled: WriteSignal<bool>,
+}
 
 #[derive(Clone, Debug)]
 pub struct BasePath(pub String);
@@ -49,6 +59,15 @@ pub fn App() -> impl IntoView {
     let (selected_image, set_selected_image) = signal(None::<String>);
     provide_context(LightboxState(set_selected_image));
 
+    let (crt_enabled, set_crt_enabled) = signal(false);
+    let (sfx_enabled, set_sfx_enabled) = signal(false);
+    provide_context(RetroSettings {
+        crt_enabled,
+        set_crt_enabled,
+        sfx_enabled,
+        set_sfx_enabled,
+    });
+
     // Get base path from the HTML <base> tag or fallback to location
     let base_path = document()
         .query_selector("base")
@@ -76,6 +95,9 @@ pub fn App() -> impl IntoView {
         <Stylesheet id="leptos" href="pkg/portfolio.css"/>
         <Title text="Ryan Son | Full-Stack Developer"/>
 
+        <div class="crt-scanlines" class:crt-off=move || !crt_enabled.get()></div>
+        <div id="sfx-status" data-enabled=move || if sfx_enabled.get() { "true" } else { "false" } style="display:none;"></div>
+
         <Router base=router_base>
             <main>
                 <Routes fallback=NotFoundPage>
@@ -96,7 +118,7 @@ pub fn App() -> impl IntoView {
 #[component]
 fn Lightbox(
     selected_image: ReadSignal<Option<String>>,
-    set_selected_image: WriteSignal<Option<String>>
+    set_selected_image: WriteSignal<Option<String>>,
 ) -> impl IntoView {
     view! {
         {move || selected_image.get().map(|url| view! {
@@ -119,22 +141,10 @@ pub fn ProjectLoader() -> impl IntoView {
         get_project_by_id(&id)
     };
 
-    let base = use_context::<BasePath>().expect("BasePath context not found");
-
     view! {
         {move || match project_data() {
             Some(data) => view! { <ProjectDetail project=data/> }.into_any(),
-            None => view! {
-                <div>
-                    <Navbar/>
-                    <div class="container" style="padding-top: 100px; margin-bottom: 30px; text-align: center;">
-                        <h1>"Project Not Found"</h1>
-                        <p>"The project you are looking for does not exist."</p>
-                        <A href=base.path("/") attr:style="margin-top: 20px" attr:class="btn btn-primary">"Return Home"</A>
-                    </div>
-                    <Footer/>
-                </div>
-            }.into_any(),
+            None => view! { <NotFoundPage /> }.into_any(),
         }}
     }
 }
@@ -147,7 +157,7 @@ fn ProjectDetail(project: Project) -> impl IntoView {
             <Navbar/>
             <section class="project-detail">
                 <div class="container">
-                    <A href=base.path("/#projects") attr:class="back-link">"← Back to Portfolio"</A>
+                    <A href=base.path("/#projects") attr:class="back-link">"BACK TO OVERVIEW"</A>
 
                     <div class="project-header">
                         <span class="tag">{project.tag}</span>
@@ -217,13 +227,13 @@ fn ProjectDetail(project: Project) -> impl IntoView {
 
                             <div class="project-links">
                                 {move || project.paper_link.map(|link| view! {
-                                    <a href=link target="_blank" class="btn btn-primary">"Read Paper"</a>
+                                    <a href=link target="_blank" class="btn btn-primary">"READ PAPER"</a>
                                 })}
                                 {move || project.code_link.map(|link| view! {
-                                    <a href=link target="_blank" class="btn btn-secondary">"View Code"</a>
+                                    <a href=link target="_blank" class="btn btn-secondary">"VIEW CODE"</a>
                                 })}
                                 {move || project.live_link.map(|link| view! {
-                                    <a href=link target="_blank" class="btn btn-secondary">"Live Site"</a>
+                                    <a href=link target="_blank" class="btn btn-secondary">"LIVE SITE"</a>
                                 })}
                             </div>
                         </div>
@@ -289,10 +299,15 @@ fn Navbar() -> impl IntoView {
 
     let is_active = move |path: &str| {
         let current_path = location.pathname.get();
-        if path == "/" { current_path == "/" } else { current_path.starts_with(path) }
+        if path == "/" {
+            current_path == "/"
+        } else {
+            current_path.starts_with(path)
+        }
     };
 
     let base = use_context::<BasePath>().expect("BasePath context not found");
+    let retro = use_context::<RetroSettings>().expect("RetroSettings context not found");
 
     view! {
         <nav>
@@ -300,44 +315,65 @@ fn Navbar() -> impl IntoView {
                 <A href=base.path("/") on:click=move |_| set_is_open.set(false)>"Ryan Son"</A>
             </div>
 
-            <button
-                class="menu-toggle"
-                class:open=move || is_open.get()
-                on:click=move |_| set_is_open.update(|n| *n = !*n)
-                aria-label="Toggle menu"
-            >
-                <span></span>
-                <span></span>
-                <span></span>
-            </button>
+            <div class="nav-right-cluster">
+                <div class="nav-controls">
+                    <button
+                        class="nes-toggle-btn crt-toggle"
+                        class:active=move || retro.crt_enabled.get()
+                        on:click=move |_| retro.set_crt_enabled.update(|v| *v = !*v)
+                        aria-label="Toggle CRT Scanlines"
+                    >
+                        {move || if retro.crt_enabled.get() { "📺 CRT: ON" } else { "📺 CRT: OFF" }}
+                    </button>
+                    <button
+                        class="nes-toggle-btn sfx-toggle"
+                        class:active=move || retro.sfx_enabled.get()
+                        on:click=move |_| retro.set_sfx_enabled.update(|v| *v = !*v)
+                        aria-label="Toggle 8-bit Sound Effects"
+                    >
+                        {move || if retro.sfx_enabled.get() { "🔊 SFX: ON" } else { "🔇 SFX: OFF" }}
+                    </button>
+                </div>
 
-            <ul class="nav-links" class:open=move || is_open.get()>
-                <li>
-                    <A href=base.path("/")
-                       class:active=move || is_active("/")
-                       on:click=move |_| scroll_to("home")>"Home"</A>
-                </li>
-                <li>
-                    <A href=base.path("/projects")
-                       class:active=move || is_active("/projects") || is_active("/project") || current_hash.get() == "#projects"
-                       on:click=move |_| scroll_to("projects")>"Projects"</A>
-                </li>
-                <li>
-                    <A href=base.path("/blog")
-                       class:active=move || is_active("/blog") || current_hash.get() == "#blogs"
-                       on:click=move |_| scroll_to("blogs")>"Blogs"</A>
-                </li>
-                <li>
-                    <A href=base.path("/photos")
-                       class:active=move || is_active("/photos") || current_hash.get() == "#photos"
-                       on:click=move |_| scroll_to("photos")>"Photos"</A>
-                </li>
-                <li>
-                    <A href=base.path("/about")
-                       class:active=move || is_active("/about")
-                       on:click=move |_| set_is_open.set(false)>"About"</A>
-                </li>
-            </ul>
+                <button
+                    class="menu-toggle"
+                    class:open=move || is_open.get()
+                    on:click=move |_| set_is_open.update(|n| *n = !*n)
+                    aria-label="Toggle menu"
+                >
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+
+                <ul class="nav-links" class:open=move || is_open.get()>
+                    <li>
+                        <A href=base.path("/")
+                           class:active=move || is_active("/")
+                           on:click=move |_| scroll_to("home")>"Home"</A>
+                    </li>
+                    <li>
+                        <A href=base.path("/projects")
+                           class:active=move || is_active("/projects") || is_active("/project") || current_hash.get() == "#projects"
+                           on:click=move |_| scroll_to("projects")>"Projects"</A>
+                    </li>
+                    <li>
+                        <A href=base.path("/blog")
+                           class:active=move || is_active("/blog") || current_hash.get() == "#blogs"
+                           on:click=move |_| scroll_to("blogs")>"Blogs"</A>
+                    </li>
+                    <li>
+                        <A href=base.path("/photos")
+                           class:active=move || is_active("/photos") || current_hash.get() == "#photos"
+                           on:click=move |_| scroll_to("photos")>"Photos"</A>
+                    </li>
+                    <li>
+                        <A href=base.path("/about")
+                           class:active=move || is_active("/about")
+                           on:click=move |_| set_is_open.set(false)>"About"</A>
+                    </li>
+                </ul>
+            </div>
         </nav>
     }
 }
@@ -348,14 +384,16 @@ fn Hero() -> impl IntoView {
     view! {
         <section class="hero" id="home">
             <div class="container hero-content">
-                <img src="images/Headshot_Ryan.jpg" alt="Profile" class="hero-image"/>
-                <h1>"From frontend to backend—designed to scale"</h1>
-                <p>"Full-stack developer crafting high-performance applications."</p>
+                <div class="hero-avatar-box">
+                    <div class="avatar-tag">"PLAYER 1"</div>
+                    <img src="images/Headshot_Ryan.jpg" alt="Ryan Son" class="hero-image"/>
+                    <div class="avatar-status">"READY"</div>
+                </div>
                 <div class="hero-links">
-                    <A href=base.path("/#projects") attr:class="btn btn-primary hero-project-btn">"View My Work"</A>
-                    <a href="https://github.com/rawleo" class="btn btn-secondary" target="_blank">"GitHub"</a>
-                    <a href="https://www.linkedin.com/in/ryanson50" class="btn btn-secondary" target="_blank">"LinkedIn"</a>
-                    <a href="mailto:sonryan50@gmail.com" class="btn btn-secondary">"Email"</a>
+                    <A href=base.path("/#projects") attr:class="btn btn-primary hero-project-btn">"START QUEST"</A>
+                    <a href="https://github.com/rawleo" class="btn btn-secondary" target="_blank">"GITHUB"</a>
+                    <a href="https://www.linkedin.com/in/ryanson50" class="btn btn-secondary" target="_blank">"LINKEDIN"</a>
+                    <a href="mailto:sonryan50@gmail.com" class="btn btn-secondary">"EMAIL"</a>
                 </div>
             </div>
         </section>
@@ -384,7 +422,7 @@ fn Projects() -> impl IntoView {
                 }).collect::<Vec<_>>()}
             </div>
             <div style="text-align: center; margin-top: 3rem;">
-                <A href=base.path("/projects") attr:class="btn btn-secondary">"View All Projects"</A>
+                <A href=base.path("/projects") attr:class="btn btn-secondary">"VIEW ALL PROJECTS"</A>
             </div>
         </section>
     }
@@ -406,6 +444,7 @@ fn Card(
             <span class="tag">{tag}</span>
             <h3>{title}</h3>
             <p>{description}</p>
+            <span class="card-prompt">"PRESS TO VIEW"</span>
         </A>
     }
 }
@@ -446,7 +485,7 @@ pub fn BlogPage() -> impl IntoView {
         <div>
             <Navbar/>
             <section class="projects container" style="padding-top: 120px;">
-                <h1 class="section-title">"Blog"</h1>
+                <h1 class="section-title">"Chronicles & Blogs"</h1>
                 <div class="projects-grid">
                     {blogs.into_iter().map(|blog| {
                         view! {
@@ -468,7 +507,9 @@ pub fn BlogPage() -> impl IntoView {
 
 #[component]
 fn PhotoCard(photo: Photo) -> impl IntoView {
-    let setter = use_context::<LightboxState>().expect("LightboxState context not found").0;
+    let setter = use_context::<LightboxState>()
+        .expect("LightboxState context not found")
+        .0;
     let url = photo.url.to_string();
 
     view! {
@@ -487,7 +528,7 @@ pub fn PhotosPage() -> impl IntoView {
         <div>
             <Navbar/>
             <section class="photos container" style="padding-top: 120px;">
-                <h1 class="section-title">"Photos"</h1>
+                <h1 class="section-title">"Snapshots & Memories"</h1>
                 <div class="photos-grid">
                     {photos.into_iter().map(|photo| {
                         view! {
@@ -508,7 +549,7 @@ fn Blogs() -> impl IntoView {
 
     view! {
         <section class="projects container" id="blogs">
-            <h2 class="section-title">"Featured Blogs"</h2>
+            <h2 class="section-title">"Chronicles & Logs"</h2>
             <div class="projects-grid">
                 {blogs.into_iter().take(3).map(|blog| {
                     view! {
@@ -523,13 +564,11 @@ fn Blogs() -> impl IntoView {
                 }).collect::<Vec<_>>()}
             </div>
             <div style="text-align: center; margin-top: 3rem;">
-                <A href=base.path("/blog") attr:class="btn btn-secondary">"View All Posts"</A>
+                <A href=base.path("/blog") attr:class="btn btn-secondary">"VIEW ALL LOGS"</A>
             </div>
         </section>
     }
 }
-
-
 
 #[component]
 pub fn BlogLoader() -> impl IntoView {
@@ -540,22 +579,12 @@ pub fn BlogLoader() -> impl IntoView {
         get_blog_by_id(&id)
     };
 
-    let base = use_context::<BasePath>().expect("BasePath context not found");
+    let _base = use_context::<BasePath>().expect("BasePath context not found");
 
     view! {
         {move || match blog_data() {
             Some(data) => view! { <BlogDetail blog=data/> }.into_any(),
-            None => view! {
-                <div>
-                    <Navbar/>
-                    <div class="container" style="padding-top: 100px; margin-bottom: 30px; text-align: center;">
-                        <h1>"Project Not Found"</h1>
-                        <p>"The project you are looking for does not exist."</p>
-                        <A href=base.path("/") attr:style="margin-top: 20px" attr:class="btn btn-primary">"Return Home"</A>
-                    </div>
-                    <Footer/>
-                </div>
-            }.into_any(),
+            None => view! { <NotFoundPage /> }.into_any(),
         }}
     }
 }
@@ -568,7 +597,7 @@ fn BlogDetail(blog: Blog) -> impl IntoView {
             <Navbar/>
             <section class="project-detail">
                 <div class="container">
-                    <A href=base.path("/#projects") attr:class="back-link">"← Back to Portfolio"</A>
+                    <A href=base.path("/#blogs") attr:class="back-link">"BACK TO OVERVIEW"</A>
 
                     <div class="project-header">
                         <span class="tag">{blog.tag}</span>
@@ -579,6 +608,16 @@ fn BlogDetail(blog: Blog) -> impl IntoView {
                     <div class="project-content">
                         <div class="project-section">
                             <p>{blog.body}</p>
+                            {move || blog.live_link.map(|(url, text)| view! {
+                                <a
+                                    href=url
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    class="btn btn-secondary"
+                                >
+                                    {text}
+                                </a>
+                            })}
                         </div>
                     </div>
                 </div>
@@ -606,14 +645,14 @@ fn Photos() -> impl IntoView {
 
     view! {
         <section class="photos container" id="photos">
-            <h2 class="section-title">"Photos"</h2>
+            <h2 class="section-title">"Snapshots & Memories"</h2>
             <div class="photos-grid">
                 {photos.into_iter().take(3).map(|photo| {
                     view! { <PhotoCard photo=photo/> }
                 }).collect::<Vec<_>>()}
             </div>
             <div style="text-align: center; margin-top: 3rem;">
-                <A href=base.path("/photos") attr:class="btn btn-secondary">"View All Photos"</A>
+                <A href=base.path("/photos") attr:class="btn btn-secondary">"VIEW ALL SNAPSHOTS"</A>
             </div>
         </section>
     }
@@ -626,11 +665,28 @@ fn NotFoundPage() -> impl IntoView {
         <div>
             <Navbar/>
             <main class="not-found container">
+                <div class="game-over-banner">"GAME OVER"</div>
                 <div class="error-code">"404"</div>
-                <h1>"Oops! Page Not Found"</h1>
-                <p>"The page you are looking for might have been moved, deleted, or never existed in the first place."</p>
-                <A href=base.path("/") attr:class="btn btn-primary">"Return Home"</A>
+                <p class="continue-prompt">"CONTINUE ? 9"</p>
+                <p>"The stage you are looking for might have been moved, deleted, or fallen into 8-bit lava."</p>
+                <A href=base.path("/") attr:class="btn btn-primary">"PRESS START TO RETRY"</A>
             </main>
+            <Footer/>
+        </div>
+    }
+}
+
+#[component]
+fn DataNotFound() -> impl IntoView {
+    let base = use_context::<BasePath>().expect("BasePath context not found");
+    view! {
+        <div>
+            <Navbar/>
+            <div class="container" style="padding-top: 100px; margin-bottom: 30px; text-align: center;">
+                <h1>"Data Not Found"</h1>
+                <p>"The project you are looking for does not exist."</p>
+                <A href=base.path("/") attr:style="margin-top: 20px" attr:class="btn btn-primary">"Return Home"</A>
+            </div>
             <Footer/>
         </div>
     }
@@ -641,16 +697,19 @@ fn About() -> impl IntoView {
     view! {
         <section class="about section-container" id="about">
             <div class="container">
-                <h2 class="section-title">"About Me"</h2>
+                <h2 class="section-title">"Character Profile"</h2>
                 <div class="about-grid">
                     <div class="about-image-wrapper">
                         <img src="images/Headshot_Ryan.jpg" alt="Ryan Son" class="about-image"/>
                     </div>
                     <div class="about-text">
-                        <p>"Hello! I'm Ryan Son, a junior full-stack developer and graduate of Carleton College. I'm passionate about crafting scalable, fast, and efficient applications."</p>
-                        <p>"My journey in software development is driven by a curiosity for complex systems and a desire to design useful tools. I love finding ways to improve the performance of my applications."</p>
-                        <p>"Outside of coding, I enjoy hiking, biking, and capturing the world through my lens."</p>
-                        <p>"Thank you for stopping by!"</p>
+                        <div class="about-dialogue-prompt">"IT'S DANGEROUS TO CODE ALONE! WELCOME TRAVELER."</div>
+                        <p>"Hello! I'm Ryan Son, a software engineer and graduate of Carleton College. Throughout high school and \
+                        undergrad I had worked as a bike mechanic, which has helped ingrained into my soul the importance of self-reliability, independence,  \
+                        and staying curious."</p>
+                        <p>"I love trying my hand at the problem-solving opportunities which come with software. Tuning apps feels almost akin to working with bikes!"</p>
+                        <p>"Outside of coding: I enjoy hiking, biking, and capturing the world through my lens."</p>
+                        <p>"Thank you for stopping by! Feel free to browse around."</p>
                     </div>
                 </div>
             </div>
@@ -663,11 +722,11 @@ fn Footer() -> impl IntoView {
     view! {
         <footer>
             <div class="container">
-                <p>"© 2026 Portfolio. Built with Rust & Leptos."</p>
+                <p>"© 2026 RYAN SON • CRAFTED WITH RUST & LEPTOS"</p>
                 <div class="footer-links">
-                    <a href="https://github.com/rawleo" target="_blank">"GitHub"</a>
-                    <a href="https://www.linkedin.com/in/ryanson50" target="_blank">"LinkedIn"</a>
-                    <a href="mailto:sonryan50@gmail.com">"Email"</a>
+                    <a href="https://github.com/rawleo" target="_blank">"GITHUB"</a>
+                    <a href="https://www.linkedin.com/in/ryanson50" target="_blank">"LINKEDIN"</a>
+                    <a href="mailto:sonryan50@gmail.com">"EMAIL"</a>
                 </div>
             </div>
         </footer>
@@ -688,9 +747,10 @@ pub fn Slideshow(images: Vec<String>) -> impl IntoView {
 
     view! {
         <div class="slideshow">
-            <button class="slide-btn slide-btn.prev" on:click=prev>"‹"</button>
+            <button class="slide-btn slide-btn.prev" on:click=prev>"◄"</button>
             <img class="project-image" src=src />
-            <button class="slide-btn slide-btn.next" on:click=next>"›"</button>
+            <button class="slide-btn slide-btn.next" on:click=next>"►"</button>
         </div>
-    }.into_any()
+    }
+    .into_any()
 }
