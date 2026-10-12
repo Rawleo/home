@@ -1,12 +1,14 @@
 use leptos::prelude::*;
 use leptos_meta::{provide_meta_context, MetaTags, Stylesheet, Title};
 use leptos_router::{
-    components::{A, Route, Router, Routes},
+    components::{Route, Router, Routes, A},
     hooks::{use_location, use_params_map},
     path,
 };
 
-use crate::data::{get_project_by_id, get_projects, Project, get_blog_by_id, get_blogs, Blog, get_photos, Photo};
+use crate::data::{
+    get_blog_by_id, get_blogs, get_photos, get_project_by_id, get_projects, Blog, Photo, Project,
+};
 
 #[derive(Copy, Clone, Debug)]
 struct LightboxState(WriteSignal<Option<String>>);
@@ -116,7 +118,7 @@ pub fn App() -> impl IntoView {
 #[component]
 fn Lightbox(
     selected_image: ReadSignal<Option<String>>,
-    set_selected_image: WriteSignal<Option<String>>
+    set_selected_image: WriteSignal<Option<String>>,
 ) -> impl IntoView {
     view! {
         {move || selected_image.get().map(|url| view! {
@@ -155,7 +157,7 @@ fn ProjectDetail(project: Project) -> impl IntoView {
             <Navbar/>
             <section class="project-detail">
                 <div class="container">
-                    <A href=base.path("/#projects") attr:class="back-link">"◄ BACK TO OVERVIEW"</A>
+                    <A href=base.path("/#projects") attr:class="back-link">"BACK TO OVERVIEW"</A>
 
                     <div class="project-header">
                         <span class="tag">{project.tag}</span>
@@ -225,13 +227,13 @@ fn ProjectDetail(project: Project) -> impl IntoView {
 
                             <div class="project-links">
                                 {move || project.paper_link.map(|link| view! {
-                                    <a href=link target="_blank" class="btn btn-primary">"▶ READ PAPER"</a>
+                                    <a href=link target="_blank" class="btn btn-primary">"READ PAPER"</a>
                                 })}
                                 {move || project.code_link.map(|link| view! {
-                                    <a href=link target="_blank" class="btn btn-secondary">"▶ VIEW CODE"</a>
+                                    <a href=link target="_blank" class="btn btn-secondary">"VIEW CODE"</a>
                                 })}
                                 {move || project.live_link.map(|link| view! {
-                                    <a href=link target="_blank" class="btn btn-secondary">"▶ LIVE SITE"</a>
+                                    <a href=link target="_blank" class="btn btn-secondary">"LIVE SITE"</a>
                                 })}
                             </div>
                         </div>
@@ -297,7 +299,11 @@ fn Navbar() -> impl IntoView {
 
     let is_active = move |path: &str| {
         let current_path = location.pathname.get();
-        if path == "/" { current_path == "/" } else { current_path.starts_with(path) }
+        if path == "/" {
+            current_path == "/"
+        } else {
+            current_path.starts_with(path)
+        }
     };
 
     let base = use_context::<BasePath>().expect("BasePath context not found");
@@ -378,39 +384,13 @@ fn Hero() -> impl IntoView {
     view! {
         <section class="hero" id="home">
             <div class="container hero-content">
-                // <div class="nes-hud-bar">
-                //     <div class="hud-item"><span class="hud-label">"SCORE"</span><span class="hud-val">"002026"</span></div>
-                //     <div class="hud-item"><span class="hud-label">"COINS"</span><span class="hud-val coin-gold">"★ x99"</span></div>
-                //     <div class="hud-item"><span class="hud-label">"WORLD"</span><span class="hud-val">"1-1"</span></div>
-                //     <div class="hud-item"><span class="hud-label">"TIME"</span><span class="hud-val">"999"</span></div>
-                // </div>
-
                 <div class="hero-avatar-box">
                     <div class="avatar-tag">"PLAYER 1"</div>
                     <img src="images/Headshot_Ryan.jpg" alt="Ryan Son" class="hero-image"/>
-                    <div class="avatar-status">"READY ▶"</div>
+                    <div class="avatar-status">"READY"</div>
                 </div>
-
-                // <div class="hero-stats-badge">
-                //     <span class="player-class">"LVL 99 FULL-STACK DEVELOPER"</span>
-                //     <div class="stat-bars">
-                //         <div class="stat-row">
-                //             <span class="stat-name">"HP"</span>
-                //             <div class="stat-track"><div class="hp-fill" style="width: 100%"></div></div>
-                //             <span class="stat-num">"100/100"</span>
-                //         </div>
-                //         <div class="stat-row">
-                //             <span class="stat-name">"MP"</span>
-                //             <div class="stat-track"><div class="mp-fill" style="width: 100%"></div></div>
-                //             <span class="stat-num">"100/100"</span>
-                //         </div>
-                //     </div>
-                // </div>
-
-                // <h1>"From frontend to backend—designed to scale"</h1>
-                // <p>"Full-stack developer crafting high-performance applications."</p>
                 <div class="hero-links">
-                    <A href=base.path("/#projects") attr:class="btn btn-primary hero-project-btn">"▶ START QUEST"</A>
+                    <A href=base.path("/#projects") attr:class="btn btn-primary hero-project-btn">"START QUEST"</A>
                     <a href="https://github.com/rawleo" class="btn btn-secondary" target="_blank">"GITHUB"</a>
                     <a href="https://www.linkedin.com/in/ryanson50" class="btn btn-secondary" target="_blank">"LINKEDIN"</a>
                     <a href="mailto:sonryan50@gmail.com" class="btn btn-secondary">"EMAIL"</a>
@@ -442,7 +422,7 @@ fn Projects() -> impl IntoView {
                 }).collect::<Vec<_>>()}
             </div>
             <div style="text-align: center; margin-top: 3rem;">
-                <A href=base.path("/projects") attr:class="btn btn-secondary">"▶ VIEW ALL PROJECTS"</A>
+                <A href=base.path("/projects") attr:class="btn btn-secondary">"VIEW ALL PROJECTS"</A>
             </div>
         </section>
     }
@@ -464,7 +444,7 @@ fn Card(
             <span class="tag">{tag}</span>
             <h3>{title}</h3>
             <p>{description}</p>
-            <span class="card-prompt">"▶ PRESS TO VIEW"</span>
+            <span class="card-prompt">"PRESS TO VIEW"</span>
         </A>
     }
 }
@@ -527,7 +507,9 @@ pub fn BlogPage() -> impl IntoView {
 
 #[component]
 fn PhotoCard(photo: Photo) -> impl IntoView {
-    let setter = use_context::<LightboxState>().expect("LightboxState context not found").0;
+    let setter = use_context::<LightboxState>()
+        .expect("LightboxState context not found")
+        .0;
     let url = photo.url.to_string();
 
     view! {
@@ -582,7 +564,7 @@ fn Blogs() -> impl IntoView {
                 }).collect::<Vec<_>>()}
             </div>
             <div style="text-align: center; margin-top: 3rem;">
-                <A href=base.path("/blog") attr:class="btn btn-secondary">"▶ VIEW ALL LOGS"</A>
+                <A href=base.path("/blog") attr:class="btn btn-secondary">"VIEW ALL LOGS"</A>
             </div>
         </section>
     }
@@ -597,7 +579,7 @@ pub fn BlogLoader() -> impl IntoView {
         get_blog_by_id(&id)
     };
 
-    let base = use_context::<BasePath>().expect("BasePath context not found");
+    let _base = use_context::<BasePath>().expect("BasePath context not found");
 
     view! {
         {move || match blog_data() {
@@ -615,7 +597,7 @@ fn BlogDetail(blog: Blog) -> impl IntoView {
             <Navbar/>
             <section class="project-detail">
                 <div class="container">
-                    <A href=base.path("/#blogs") attr:class="back-link">"◄ BACK TO OVERVIEW"</A>
+                    <A href=base.path("/#blogs") attr:class="back-link">"BACK TO OVERVIEW"</A>
 
                     <div class="project-header">
                         <span class="tag">{blog.tag}</span>
@@ -626,6 +608,16 @@ fn BlogDetail(blog: Blog) -> impl IntoView {
                     <div class="project-content">
                         <div class="project-section">
                             <p>{blog.body}</p>
+                            {move || blog.live_link.map(|(url, text)| view! {
+                                <a
+                                    href=url
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    class="btn btn-secondary"
+                                >
+                                    {text}
+                                </a>
+                            })}
                         </div>
                     </div>
                 </div>
@@ -660,7 +652,7 @@ fn Photos() -> impl IntoView {
                 }).collect::<Vec<_>>()}
             </div>
             <div style="text-align: center; margin-top: 3rem;">
-                <A href=base.path("/photos") attr:class="btn btn-secondary">"▶ VIEW ALL SNAPSHOTS"</A>
+                <A href=base.path("/photos") attr:class="btn btn-secondary">"VIEW ALL SNAPSHOTS"</A>
             </div>
         </section>
     }
@@ -677,7 +669,7 @@ fn NotFoundPage() -> impl IntoView {
                 <div class="error-code">"404"</div>
                 <p class="continue-prompt">"CONTINUE ? 9"</p>
                 <p>"The stage you are looking for might have been moved, deleted, or fallen into 8-bit lava."</p>
-                <A href=base.path("/") attr:class="btn btn-primary">"▶ PRESS START TO RETRY"</A>
+                <A href=base.path("/") attr:class="btn btn-primary">"PRESS START TO RETRY"</A>
             </main>
             <Footer/>
         </div>
@@ -709,33 +701,13 @@ fn About() -> impl IntoView {
                 <div class="about-grid">
                     <div class="about-image-wrapper">
                         <img src="images/Headshot_Ryan.jpg" alt="Ryan Son" class="about-image"/>
-                        // <div class="hero-stats-badge" style="max-width: 280px; width: 100%;">
-                            // <span class="player-class" style="font-size: 0.65rem;">"ATTRIBUTES & STATS"</span>
-                            // <div class="stat-bars">
-                            //     <div class="stat-row">
-                            //         <span class="stat-name">"STR"</span>
-                            //         <div class="stat-track"><div class="hp-fill" style="width: 95%"></div></div>
-                            //         <span class="stat-num">"95/99"</span>
-                            //     </div>
-                            //     <div class="stat-row">
-                            //         <span class="stat-name">"INT"</span>
-                            //         <div class="stat-track"><div class="mp-fill" style="width: 99%"></div></div>
-                            //         <span class="stat-num">"99/99"</span>
-                            //     </div>
-                            //     <div class="stat-row">
-                            //         <span class="stat-name">"AGI"</span>
-                            //         <div class="stat-track"><div class="hp-fill" style="width: 92%"></div></div>
-                            //         <span class="stat-num">"92/99"</span>
-                            //     </div>
-                            // </div>
-                        // </div>
                     </div>
                     <div class="about-text">
                         <div class="about-dialogue-prompt">"IT'S DANGEROUS TO CODE ALONE! WELCOME TRAVELER."</div>
                         <p>"Hello! I'm Ryan Son, a software engineer and graduate of Carleton College. Throughout high school and \
-                        undergrad I had worked as a bike mechanic, which has helped ingrained into my soul the importance of independence \
+                        undergrad I had worked as a bike mechanic, which has helped ingrained into my soul the importance of self-reliability, independence,  \
                         and staying curious."</p>
-                        <p>"I love trying my hand at the problem-solving opportunities which come with software. Tuning apps feels akin to working with bikes!"</p>
+                        <p>"I love trying my hand at the problem-solving opportunities which come with software. Tuning apps feels almost akin to working with bikes!"</p>
                         <p>"Outside of coding: I enjoy hiking, biking, and capturing the world through my lens."</p>
                         <p>"Thank you for stopping by! Feel free to browse around."</p>
                     </div>
@@ -750,7 +722,7 @@ fn Footer() -> impl IntoView {
     view! {
         <footer>
             <div class="container">
-                <p>"© 2026 RYAN SON • CRAFTED WITH RUST & LEPTOS 8-BIT ENGINE"</p>
+                <p>"© 2026 RYAN SON • CRAFTED WITH RUST & LEPTOS"</p>
                 <div class="footer-links">
                     <a href="https://github.com/rawleo" target="_blank">"GITHUB"</a>
                     <a href="https://www.linkedin.com/in/ryanson50" target="_blank">"LINKEDIN"</a>
@@ -779,5 +751,6 @@ pub fn Slideshow(images: Vec<String>) -> impl IntoView {
             <img class="project-image" src=src />
             <button class="slide-btn slide-btn.next" on:click=next>"►"</button>
         </div>
-    }.into_any()
+    }
+    .into_any()
 }

@@ -22,7 +22,7 @@ pub struct Blog {
     pub tag: &'static str,
     pub description: &'static str,
     pub body: &'static str,
-    pub live_link: Option<&'static str>,
+    pub live_link: Option<(&'static str, &'static str)>,
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -181,6 +181,21 @@ pub fn get_blogs() -> Vec<Blog> {
             Atonement was a very different book from Invisible Man, and it felt like literary whiplash when I started it. Nevertheless, I was sucked into this new world and captivated by how McEwan could capture the environment so well in the eyes of his characters. Overall, these three books had been incredible reads this past summer and I hope to continue reading books that express so much emotion.",
             live_link: None
         },
+        Blog {
+            id: "10112026",
+            title: "Homelabbing",
+            subtitle: "October 11th, 2026",
+            tag: "Blog",
+            description: "Self-hosting all the way!",
+            body: "
+            Recently, I have been trying my hand at homelabbing! It has been a dream of mine to get off of cloud services like Google Photos and Google Drive. \
+            I had been an avid user of cloud services like these since their inception, but have been wanting to reclaim my privacy and security from Big Data. \
+            So, with the help of NixOS and a handy 2015 Macbook Pro, I have installed Immich and am hosting my own photo backup service. Unfortunately, \
+            given the insane prices revolving around volatile and non-volatile memory, it might be a while until I can upgrade my storage solution to a dedicated \
+            NAS (network attached storage), but I do definitely look forward to building one. Maybe I could eventually host my own personal git solution...
+            ",
+            live_link: Some(("https://immich.app/", "OPEN IMMICH")),
+        }
 
     ]
 }
