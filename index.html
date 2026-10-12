@@ -4,160 +4,160 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ryan Son | 8-Bit Full-Stack Developer</title>
+    <title>Ryan Son | Full-Stack Developer</title>
     <meta name="description"
-        content="Ryan Son's 8-Bit Nintendo themed developer portfolio. Showcasing software engineering projects, photography, and blog posts.">
+          content="Ryan Son's 8-Bit Nintendo themed developer portfolio. Showcasing software engineering projects, photography, and blog posts.">
     <!-- Google Fonts for 8-bit aesthetic -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&family=Press+Start+2P&family=VT323&display=swap"
-        rel="stylesheet">
+            href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&family=Press+Start+2P&family=VT323&display=swap"
+            rel="stylesheet">
     <!-- Trunk configuration -->
-    <link data-trunk rel="rust" data-bin="portfolio-bin" />
-    <link data-trunk rel="scss" href="style/main.scss" />
-    <link data-trunk rel="icon" type="image/png" href="public/favicon.png" />
-    <link data-trunk rel="copy-dir" href="public/images" />
-    <base href="/" />
+    <link data-trunk rel="rust" data-bin="portfolio-bin"/>
+    <link data-trunk rel="scss" href="style/main.scss"/>
+    <link data-trunk rel="icon" type="image/png" href="public/favicon.png"/>
+    <link data-trunk rel="copy-dir" href="public/images"/>
+    <base href="/"/>
 </head>
 
 <body class="crt-enabled">
-    <script>
-        // 8-Bit Retro Sound Synthesizer via Web Audio API
-        (function () {
-            let audioCtx = null;
-            let sfxEnabled = false;
+<script>
+    // 8-Bit Retro Sound Synthesizer via Web Audio API
+    (function () {
+        let audioCtx = null;
+        let sfxEnabled = false;
 
-            function isSfxEnabled() {
-                const sfxEl = document.getElementById('sfx-status');
-                if (sfxEl) {
-                    return sfxEl.getAttribute('data-enabled') === 'true';
-                }
-                return sfxEnabled;
+        function isSfxEnabled() {
+            const sfxEl = document.getElementById('sfx-status');
+            if (sfxEl) {
+                return sfxEl.getAttribute('data-enabled') === 'true';
             }
+            return sfxEnabled;
+        }
 
-            function getAudioContext() {
-                if (!audioCtx) {
-                    const AudioContext = window.AudioContext || window.webkitAudioContext;
-                    if (AudioContext) {
-                        audioCtx = new AudioContext();
-                    }
+        function getAudioContext() {
+            if (!audioCtx) {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (AudioContext) {
+                    audioCtx = new AudioContext();
                 }
-                if (audioCtx && audioCtx.state === 'suspended') {
-                    audioCtx.resume();
-                }
-                return audioCtx;
             }
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            return audioCtx;
+        }
 
-            window.play8BitSound = function (type) {
-                if (!isSfxEnabled()) return;
-                try {
-                    const ctx = getAudioContext();
-                    if (!ctx) return;
-                    const now = ctx.currentTime;
-                    const osc = ctx.createOscillator();
-                    const gain = ctx.createGain();
-                    osc.type = 'square'; // Classic NES 8-bit pulse wave
+        window.play8BitSound = function (type) {
+            if (!isSfxEnabled()) return;
+            try {
+                const ctx = getAudioContext();
+                if (!ctx) return;
+                const now = ctx.currentTime;
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'square'; // Classic NES 8-bit pulse wave
 
-                    if (type === 'coin') {
-                        // Classic Mario Coin chord (B5 -> E6)
-                        osc.frequency.setValueAtTime(987.77, now);
-                        osc.frequency.setValueAtTime(1318.51, now + 0.08);
-                        gain.gain.setValueAtTime(0.08, now);
-                        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
-                        osc.connect(gain);
-                        gain.connect(ctx.destination);
-                        osc.start(now);
-                        osc.stop(now + 0.35);
-                    } else if (type === 'select') {
-                        // High blip on select
-                        osc.frequency.setValueAtTime(880, now);
-                        gain.gain.setValueAtTime(0.05, now);
-                        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
-                        osc.connect(gain);
-                        gain.connect(ctx.destination);
-                        osc.start(now);
-                        osc.stop(now + 0.06);
-                    } else if (type === 'jump') {
-                        // Retro jump / start
-                        osc.frequency.setValueAtTime(160, now);
-                        osc.frequency.exponentialRampToValueAtTime(580, now + 0.12);
-                        gain.gain.setValueAtTime(0.08, now);
-                        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
-                        osc.connect(gain);
-                        gain.connect(ctx.destination);
-                        osc.start(now);
-                        osc.stop(now + 0.12);
-                    } else if (type === 'powerup') {
-                        // 1-UP / fanfare
-                        const notes = [330, 392, 659, 523, 587, 784];
-                        notes.forEach((freq, idx) => {
-                            const o = ctx.createOscillator();
-                            const g = ctx.createGain();
-                            o.type = 'square';
-                            o.frequency.setValueAtTime(freq, now + idx * 0.07);
-                            g.gain.setValueAtTime(0.06, now + idx * 0.07);
-                            g.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.07 + 0.06);
-                            o.connect(g);
-                            g.connect(ctx.destination);
-                            o.start(now + idx * 0.07);
-                            o.stop(now + idx * 0.07 + 0.06);
-                        });
-                    } else {
-                        // Subtle tick/blip
-                        osc.frequency.setValueAtTime(440, now);
-                        gain.gain.setValueAtTime(0.04, now);
-                        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
-                        osc.connect(gain);
-                        gain.connect(ctx.destination);
-                        osc.start(now);
-                        osc.stop(now + 0.04);
-                    }
-                } catch (e) {
-                    // AudioContext restrictions
-                }
-            };
-
-            // Hook user interactions with retro sound effects
-            document.addEventListener('click', function (e) {
-                const target = e.target.closest('a, button, .project-card, .photo-card, .menu-toggle');
-                if (target) {
-                    if (target.classList.contains('sfx-toggle')) {
-                        setTimeout(function () {
-                            if (isSfxEnabled()) {
-                                window.play8BitSound('coin');
-                            }
-                        }, 50);
-                        return;
-                    }
-                    if (target.classList.contains('crt-toggle')) {
-                        window.play8BitSound('select');
-                        return;
-                    }
-                    if (target.classList.contains('btn-primary') || target.classList.contains('hero-project-btn')) {
-                        window.play8BitSound('powerup');
-                    } else if (target.classList.contains('tag')) {
-                        window.play8BitSound('select');
-                    } else if (target.classList.contains('project-card') || target.classList.contains('photo-card')) {
-                        window.play8BitSound('coin');
-                    } else {
-                        window.play8BitSound('jump');
-                    }
-                }
-            }, true);
-
-            // Subtle blip on button hover
-            document.addEventListener('mouseover', function (e) {
-                const target = e.target.closest('a, button, .project-card');
-                if (target && !target.dataset.hasHoverSound) {
-                    target.dataset.hasHoverSound = 'true';
-                    target.addEventListener('mouseenter', function () {
-                        window.play8BitSound('select');
+                if (type === 'coin') {
+                    // Classic Mario Coin chord (B5 -> E6)
+                    osc.frequency.setValueAtTime(987.77, now);
+                    osc.frequency.setValueAtTime(1318.51, now + 0.08);
+                    gain.gain.setValueAtTime(0.08, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(now);
+                    osc.stop(now + 0.35);
+                } else if (type === 'select') {
+                    // High blip on select
+                    osc.frequency.setValueAtTime(880, now);
+                    gain.gain.setValueAtTime(0.05, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(now);
+                    osc.stop(now + 0.06);
+                } else if (type === 'jump') {
+                    // Retro jump / start
+                    osc.frequency.setValueAtTime(160, now);
+                    osc.frequency.exponentialRampToValueAtTime(580, now + 0.12);
+                    gain.gain.setValueAtTime(0.08, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(now);
+                    osc.stop(now + 0.12);
+                } else if (type === 'powerup') {
+                    // 1-UP / fanfare
+                    const notes = [330, 392, 659, 523, 587, 784];
+                    notes.forEach((freq, idx) => {
+                        const o = ctx.createOscillator();
+                        const g = ctx.createGain();
+                        o.type = 'square';
+                        o.frequency.setValueAtTime(freq, now + idx * 0.07);
+                        g.gain.setValueAtTime(0.06, now + idx * 0.07);
+                        g.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.07 + 0.06);
+                        o.connect(g);
+                        g.connect(ctx.destination);
+                        o.start(now + idx * 0.07);
+                        o.stop(now + idx * 0.07 + 0.06);
                     });
+                } else {
+                    // Subtle tick/blip
+                    osc.frequency.setValueAtTime(440, now);
+                    gain.gain.setValueAtTime(0.04, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(now);
+                    osc.stop(now + 0.04);
                 }
-            }, true);
-        })();
-    </script>
+            } catch (e) {
+                // AudioContext restrictions
+            }
+        };
+
+        // Hook user interactions with retro sound effects
+        document.addEventListener('click', function (e) {
+            const target = e.target.closest('a, button, .project-card, .photo-card, .menu-toggle');
+            if (target) {
+                if (target.classList.contains('sfx-toggle')) {
+                    setTimeout(function () {
+                        if (isSfxEnabled()) {
+                            window.play8BitSound('coin');
+                        }
+                    }, 50);
+                    return;
+                }
+                if (target.classList.contains('crt-toggle')) {
+                    window.play8BitSound('select');
+                    return;
+                }
+                if (target.classList.contains('btn-primary') || target.classList.contains('hero-project-btn')) {
+                    window.play8BitSound('powerup');
+                } else if (target.classList.contains('tag')) {
+                    window.play8BitSound('select');
+                } else if (target.classList.contains('project-card') || target.classList.contains('photo-card')) {
+                    window.play8BitSound('coin');
+                } else {
+                    window.play8BitSound('jump');
+                }
+            }
+        }, true);
+
+        // Subtle blip on button hover
+        document.addEventListener('mouseover', function (e) {
+            const target = e.target.closest('a, button, .project-card');
+            if (target && !target.dataset.hasHoverSound) {
+                target.dataset.hasHoverSound = 'true';
+                target.addEventListener('mouseenter', function () {
+                    window.play8BitSound('select');
+                });
+            }
+        }, true);
+    })();
+</script>
 </body>
 
 </html>
